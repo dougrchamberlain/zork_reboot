@@ -15,7 +15,6 @@ mongoose.connect("");
 /*var validUserName = process.env.USER || "";
  var validPassword = process.env.PASS || "";*/
 
-var someModel = require("./models/someModel");
 
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
@@ -27,7 +26,7 @@ app.use(bodyParser.json({type:"application/json", limit: 1024 * 1024 * 10}));
 app.use(cookieParser());
 app.use(session({secret:"[insert_generated_secret_here]"}));
 
-app.use(express.static("."));
+app.use(express.static(__dirname + '/app'));
 
 app.listen(port, function() {
     console.log('The audience is listening...on http://localhost:' + port);
