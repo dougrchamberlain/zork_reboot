@@ -1,7 +1,6 @@
-logs/*
-!.gitkeep
-node_modules/
-bower_components/
-tmp
-.DS_Store
+node_modules
 .idea
+module/css
+node_modules
+node_modules
+app/styles/compiled
