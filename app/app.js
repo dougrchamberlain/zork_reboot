@@ -200,14 +200,14 @@ angular.module("myApp", [
             foundThing = inventory || loot || monsters;
 
             if (!foundThing || !foundThing.type == "container") {
-               vm.status.push("You can't open that.");
+                vm.status.push("You can't open that.");
             }
             else if (foundThing && foundThing.isOpen == false) {
                 foundThing.isOpen = true;
                 vm.status.push("You open the " + foundThing.name + ".");
 
             }
-            else if(foundThing && foundThing.isOpen){
+            else if (foundThing && foundThing.isOpen) {
                 vm.status.push(foundThing.name + " is already opened.");
             }
 
@@ -379,7 +379,7 @@ angular.module("myApp", [
     vm.parseCommand = function (command) {
 
         //is it an item command?
-        var itemCommand = command.match(/^(put|tie|attack|throw|turn|break|attack|kill|put)\s(.+\s?)\s(?:with|to|at|in)\s(\w+)$/i);
+        var itemCommand = command.match(/^(put|tie|attack|throw|turn|break|attack|kill|put|look)\s(.+\s?)\s(?:with|to|at|in)\s(\w+)$/i);
         var moveCommand = command.match(/^[nsew]$|(ne|nw|se|sw|north|south|east|west|northwest|southwest|northeast|southeast|down|up|d|u)$/i);
 
         var words = command.split(/(?:\s+|the|this|that|with)/g);
@@ -391,10 +391,7 @@ angular.module("myApp", [
                 if (_.contains(words, name)) {
                     actions.push(action);
                     words.splice(_.findWhere(words, name), 1);
-                    if(itemCommand){
-                        action.callback(name, words);
-                    }
-
+                    action.callback(name, words);
                 }
             })
         });

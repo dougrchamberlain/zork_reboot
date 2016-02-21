@@ -107,10 +107,5 @@ describe('appController', function() {
             expect(vm.status.pop()).toBe("You can't open that.");
         });
 
-        it("should open exit for travel",function(){
-          //todo: implement
-        })
-
-
     });
 });
