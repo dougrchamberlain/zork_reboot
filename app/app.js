@@ -378,6 +378,10 @@ angular.module("myApp", [
 
     vm.parseCommand = function (command) {
 
+        //is it an item command?
+        var itemCommand = command.match(/^(put|tie|attack|throw|turn|break|attack|kill|put)\s(.+\s?)\s(?:with|to|at|in)\s(\w+)$/i);
+        var moveCommand = command.match(/^[nsew]$|(ne|nw|se|sw|north|south|east|west|northwest|southwest|northeast|southeast|down|up|d|u)$/i);
+
         var words = command.split(/(?:\s+|the|this|that|with)/g);
         var actions = [];
 
@@ -387,7 +391,10 @@ angular.module("myApp", [
                 if (_.contains(words, name)) {
                     actions.push(action);
                     words.splice(_.findWhere(words, name), 1);
-                    action.callback(name, words);
+                    if(itemCommand){
+                        action.callback(name, words);
+                    }
+
                 }
             })
         });
