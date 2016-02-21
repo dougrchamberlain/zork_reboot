@@ -32,6 +32,12 @@ angular.module("myApp", [
         description: "Wanko brand darkness removal tool."
     }];
 
+
+    vm.items = [];
+    vm.creatures = [];
+    vm.rooms = [];
+
+
     vm.map = {
         rooms: [
             {
@@ -120,7 +126,7 @@ angular.module("myApp", [
     //return;
 
     vm.describeRoom = function (locationId) {
-
+        console.log();
         return vm.location.longDescription;
     };
 
@@ -128,6 +134,17 @@ angular.module("myApp", [
         vm.status = [];
         // return;
     };
+
+    vm.activateController = function () {
+        var lil = this;
+
+        lil.canActivate = function (obj) {
+            obj = obj || {};
+            return obj.canActivate;
+        };
+
+
+    }
 
     var possibleActions = [
         {
@@ -139,6 +156,7 @@ angular.module("myApp", [
         }
         },
         {
+
             name: ["north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
             needsObject: false,
             callback: function (item) {
@@ -161,6 +179,41 @@ angular.module("myApp", [
         {
             name: ["clear"], needsObject: false, callback: clearService
         },
+        {
+            name: ["open"], needsObject: false, callback: function (item, words) {
+            var inventory, loot, monsters;
+            var foundThing;
+
+            inventory = _.find(vm.player.inventory, function (item) {
+                return item.name == words[0];
+            });
+
+
+            loot = _.find(vm.location.loot, function (item) {
+                return item.name == words[0];
+            });
+
+            monsters = _.find(vm.location.monsters, function (item) {
+                return item.name == words[0];
+            });
+
+            foundThing = inventory || loot || monsters;
+
+            if (!foundThing || !foundThing.type == "container") {
+               vm.status.push("You can't open that.");
+            }
+            else if (foundThing && foundThing.isOpen == false) {
+                foundThing.isOpen = true;
+                vm.status.push("You open the " + foundThing.name + ".");
+
+            }
+            else if(foundThing && foundThing.isOpen){
+                vm.status.push(foundThing.name + " is already opened.");
+            }
+
+        }
+        },
+
         {
             name: ["take", "get"], needsObject: false, callback: function (item, words) {
             var loot = vm.location.loot;
@@ -219,7 +272,7 @@ angular.module("myApp", [
                         return regex.test(inventory[i].name);
                     })) {
                     if (inventory[i]) {
-                        vm.location.loot.push(item[i]);
+                        vm.location.loot.push(inventory[i]);
                         vm.status.push(inventory[i].name + " dropped.");
 
                     }
@@ -237,16 +290,21 @@ angular.module("myApp", [
             });
         }
         },
+
+
         {
             name: ["activate", "turn", "use"], callback: function (item, words) {
 
-            if(words[0] == "eric's"){
+            if (words[0] == "eric's") {
                 vm.status.push("She seems to rather enjoy that.");
                 return;
             }
+            var item = _.find(vm.player.inventory, function (item) {
+                return item.canActivate == true && item.name == words[1];
+            });
 
             var item = _.find(vm.player.inventory, function (item) {
-                return item.canActivate == true || item.name == words[2];
+                return item.canActivate == true && item.name == words[1];
             });
 
             if (item) {
@@ -287,33 +345,31 @@ angular.module("myApp", [
 
         {
             name: ["desc", "describe", "examine"], callback: function (item, words) {
-            var inventory,loot,monsters;
+            var inventory, loot, monsters;
             var foundThing;
 
-            inventory =_.find(vm.player.inventory, function(item){
+            inventory = _.find(vm.player.inventory, function (item) {
                 return item.name == words[0];
             });
 
 
-            loot =_.find(vm.location.loot, function(item){
+            loot = _.find(vm.location.loot, function (item) {
                 return item.name == words[0];
             });
 
-            monsters =_.find(vm.location.monsters, function(item){
+            monsters = _.find(vm.location.monsters, function (item) {
                 return item.name == words[0];
             });
 
             foundThing = inventory || loot || monsters;
 
-            if(!foundThing && words[0] == vm.location.name){
+            if (!foundThing && words[0] == vm.location.name) {
                 vm.status.push(vm.location.description);
             }
-            else if(foundThing){
+            else if (foundThing) {
                 vm.status.push("This " + foundThing.name + " is a " + foundThing.description);
 
             }
-
-
 
 
             // return;s
@@ -329,8 +385,7 @@ angular.module("myApp", [
             action.name.forEach(function (name) {
                 name = name.toLowerCase();
                 if (_.contains(words, name)) {
-                    actions.push(action)
-                    console.log(words.length);
+                    actions.push(action);
                     words.splice(_.findWhere(words, name), 1);
                     action.callback(name, words);
                 }
