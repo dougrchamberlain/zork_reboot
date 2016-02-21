@@ -4,3 +4,4 @@ module/css
 node_modules
 node_modules
 app/styles/compiled
+bower_components
