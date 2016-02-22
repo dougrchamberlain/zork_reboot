@@ -19,7 +19,7 @@ angular.module("myApp", [
         controller: "appController",
         controllerAs: "vm"
     });
-}]).controller("appController", ["$resource", "_", function ($resource, _) {
+}]).controller("appController", ["$scope","$resource", "_", "mapService", "itemService", function ($scope,$resource, _, mapService, itemService) {
     var vm = this;
     vm.commands = [];
     vm.status = []
@@ -38,65 +38,27 @@ angular.module("myApp", [
     vm.rooms = [];
 
 
-    vm.map = {
-        rooms: [
-            {
-                id: "1",
-                name: "test room",
-                lit: false,
-                image: "topleft0risus0dungeon0altered044.jpg",
-                exits: {
-                    south: 2,
-                    east: 0
+    vm.map = mapService.load({rooms:{}});
+    mapService.createRooms([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (item) {
+        return "room " + item;
+    }));
 
-                },
-                monsters: [],
-                loot: [
+    mapService.setLocation("room 1");
+    mapService.getMap().rooms["room 1"].exits.north = "room 9";
+    mapService.getMap().rooms["room 9"].exits.west = "room 1";
 
-                    {name: "picture of a clown", life: 100000, canCarry: true},
-                    {name: "grue corpse", life: 20, canCarry: false},
-                    {name: "knife", life: -1, canCarry: true},
-                    {name: "shotgun", life: 2, canCarry: true},
-                    {name: "car", life: 20, canCarry: false}
-                ],
-                description: "Awesome lamp Room!"
-            },
-            {
-                id: "2",
-                name: "test room 2",
-                exits: {
-                    west: 1,
-                    northwest: 0
-                },
-                lit: true,
-                image: "maintile0risus0dungeon0original00379.jpg",
-                monsters: [
-                    {
-                        name: "Al Gore",
-                        life: 100,
-                        type: "enemy"
-                    }
-                ],
-                loot: [
-                    {name: "eric's Mom", life: 20, canCarry: true, inventory: false},
-
-                ],
-                description: "stupid butt room"
-            }
-        ]
-    };
-
-    vm.location = 1;
+    vm.location = mapService.currentLocation();
 
 
-    vm.setLocation = function (locationId) {
-        vm.location = (_.filter(vm.map.rooms, function (room) {
-            return room.id == locationId;
-        }))[0];
-        if (vm.location.lit) {
-            lookService();
-        }
-    };
+    vm.isWinner = function () {
+        return mapService.currentLocation().name == "room 9";
+    }
+
+    vm.hasLitLamp = function(){
+        var result =  _.find(vm.player.inventory,function(item){
+                return item.state == "on" && item.name == "lamp"});
+        return angular.isDefined(result);
+    }
 
     vm.onActionTaken = function () {
         vm.player.inventory.forEach(function (item) {
@@ -146,6 +108,16 @@ angular.module("myApp", [
 
     }
 
+    vm.possibleExits = function(items) {
+        var result = {};
+        angular.forEach(items, function(value, key) {
+            if (value) {
+                result[key] = value;
+            }
+        });
+        return result;
+    }
+
     var possibleActions = [
         {
             name: ["look", "l"], needsObject: false, callback: lookService
@@ -162,7 +134,8 @@ angular.module("myApp", [
             callback: function (item) {
                 vm.status = [];
                 if (vm.location.exits[item]) {
-                    vm.setLocation(vm.location.exits[item]);
+                    mapService.move(item);
+                    vm.location = mapService.currentLocation();
                 }
                 else {
                     vm.status.push("You can't go that way");
@@ -312,7 +285,6 @@ angular.module("myApp", [
                     if (item) {
                         item.state = "on";
                         if (words[1] == "lamp") {
-                            vm.location.lit = true;
                             lookService();
                         }
                     }
@@ -321,7 +293,6 @@ angular.module("myApp", [
                     if (item) {
                         item.state = "off";
                         if (words[1] == "lamp") {
-                            vm.location.lit = false;
                         }
                     }
                 }
@@ -400,7 +371,6 @@ angular.module("myApp", [
             w = w.toLowerCase()
         });
 
-
         return {actions: actions, objects: words, isValid: actions.length > 0}
 
     };
@@ -451,7 +421,7 @@ angular.module("myApp", [
 
     }
 
-    vm.setLocation(1);
+
 
 
 }]);

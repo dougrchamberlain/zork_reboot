@@ -2,6 +2,8 @@
 <!--<li ng-repeat="command in vm.commands  track by $index | limitTo : -5">{{command}}  </li>-->
 <!--</ul>-->
 <div class="container-fluid">
+    <pre>{{vm.player.inventory}}</pre>
+    <pre>{{vm.hasLitLamp()}}</pre>
     <div class="row">
         <div class="col-xs-8">
             <ul>
@@ -22,14 +24,14 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-xs-12">
-            <h4>exits:<span ng-if="vm.location.lit" ng-repeat="(key,value) in vm.location.exits">{{key}}&nbsp;</span>
+            <h4>exits:<span ng-hide="vm.hasLitLamp() == false" ng-repeat="(key,value) in vm.possibleExits(vm.location.exits)">{{key}}&nbsp;</span>
             </h4>
-            <span ng-if="!vm.location.lit">**Can't see the exits**</span></br>
-            <img ng-show="vm.location.lit" ng-src="dungeon/{{vm.location.image}}" height="25%" width="25%"/>
+            <span ng-hide="vm.hasLitLamp()">**Can't see the exits**</span></br>
+            <img ng-show="vm.location.lit || vm.hasLitLamp()" ng-src="dungeon/{{vm.location.image}}" height="25%" width="25%"/>
 
             <h4>Current Location: {{vm.location.name}}</h4>
-            <p ng-show="vm.location.lit">{{vm.location.description}}</p>
-            <p ng-hide="vm.location.lit">It is pitch black you are likely to be eaten by a grue</p>
+            <p ng-show="vm.location.lit || vm.hasLitLamp()">{{vm.location.description}}</p>
+            <p ng-hide="vm.location.lit || vm.hasLitLamp()">It is pitch black you are likely to be eaten by a grue</p>
 
             <hr/>
         </div>

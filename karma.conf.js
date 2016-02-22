@@ -1,6 +1,6 @@
 module.exports = function (config) {
     config.set({
-        concurrency: 4,
+        logLevel: "LOG_INFO",
         files: [
             'bower_components/underscore/underscore.js',
             'bower_components/angular/angular.js',
@@ -9,8 +9,8 @@ module.exports = function (config) {
             'bower_components/angular-ui-router/release/angular-ui-router.js',
             'bower_components/angular-bootstrap/ui-bootstrap.js',
             'bower_components/angular-mocks/angular-mocks.js',
-            'app/app*.js'
-
+            'app/*!(_test).js',
+            'app/*_test.js'
         ],
 
         autoWatch: true,
