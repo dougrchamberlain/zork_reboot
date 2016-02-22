@@ -2,8 +2,9 @@
 <!--<li ng-repeat="command in vm.commands  track by $index | limitTo : -5">{{command}}  </li>-->
 <!--</ul>-->
 <div class="container-fluid">
-    <pre>{{vm.player.inventory}}</pre>
-    <pre>{{vm.hasLitLamp()}}</pre>
+    <!-- Modal -->
+
+<div ng-show="vm.isWinner()">You win</div>
     <div class="row">
         <div class="col-xs-8">
             <ul>
@@ -14,7 +15,7 @@
             <h4>Inventory:</h4>
             <p ng-repeat="item in vm.player.inventory track by $index ">{{item.name}}</p>
             <h4>Monsters:</h4>
-            <p ng-show="vm.location.lit" ng-repeat="monster in vm.location.monsters">{{monster.name}} life: {{monster.life}}</p>
+            <p ng-show="vm.location.lit || vm.hasLitLamp()" ng-repeat="monster in vm.location.monsters">{{monster.name}} life: {{monster.life}}</p>
         </div>
     </div>
     <div class="row">
@@ -24,9 +25,9 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-xs-12">
-            <h4>exits:<span ng-hide="vm.hasLitLamp() == false" ng-repeat="(key,value) in vm.possibleExits(vm.location.exits)">{{key}}&nbsp;</span>
+            <h4>exits:<span ng-show="vm.location.lit || vm.hasLitLamp()" ng-repeat="(key,value) in vm.possibleExits(vm.location.exits)">{{key}}&nbsp;</span>
             </h4>
-            <span ng-hide="vm.hasLitLamp()">**Can't see the exits**</span></br>
+            <span ng-hide="vm.location.lit || vm.hasLitLamp()">**Can't see the exits**</span></br>
             <img ng-show="vm.location.lit || vm.hasLitLamp()" ng-src="dungeon/{{vm.location.image}}" height="25%" width="25%"/>
 
             <h4>Current Location: {{vm.location.name}}</h4>

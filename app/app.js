@@ -51,7 +51,7 @@ angular.module("myApp", [
 
 
     vm.isWinner = function () {
-        return mapService.currentLocation().name == "room 9";
+        return vm.location.name == "room 9" && vm.hasLitLamp();
     }
 
     vm.hasLitLamp = function(){
