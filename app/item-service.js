@@ -7,6 +7,7 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
     var inventory = [];
 
     var open = function (item) {
+        var foundItem =  findItemByName(item);
         if (item.container) {
             if (item.container.isOpen == false) {
                 item.container.isOpen = true;
@@ -18,9 +19,10 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         else {
             throw new Error("You can't open that.");
         }
+        return this;
     };
 
-    var findByName = function (itemName, container) {
+    var findItemByName = function (itemName, container) {
         var itemReference = _.findWhere(container, function (name) {
             return name == itemName || name.match(itemName);
         });
@@ -29,7 +31,7 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
 
 
     var transfer = function (fromContainer, toContainer, item) {
-        var foundItem = findByName(item,fromContainer);
+        var foundItem = findItemByName(item,fromContainer);
         if (foundItem) {
             toContainer.push(foundItem);
         }
@@ -43,7 +45,7 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         else {
             throw new Error("Item does not exist");
         }
-        return foundItem;
+       return this
     }
 
     return {
@@ -51,6 +53,7 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
             return inventory;
         },
         open: open,
-        transfer: transfer
+        transfer: transfer,
+        findItemByName: findItemByName
     }
 }]);

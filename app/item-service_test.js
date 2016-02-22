@@ -35,14 +35,22 @@ describe("Item Service", function () {
             expect(itemService.transfer).toThrow(new Error("Item does not exist"));
         });
 
+        it("should be able to put an item in a container",function(){
+            var someContainer = [{name:"mock item", canCarry: true,container:{isOpen: false,contents:[]}}, {name:"small thing", canCarry: false}];
+            var getJar = itemService.findItemByName("mock item",someContainer);
 
-        it("should report already opened container", function () {
-            var item = {name: "jar", container:{isOpen: true}};
+
+            itemService.transfer(someContainer,getJar.container.contents,"small thing");
+            console.log(getJar.container.contents);
+            expect(getJar.container.contents.length).toBe(1);
+        });
 
 
-            expect(function(){
-                itemService.open(item);
-            }).toThrow(new Error("jar already opened"));
+        it("should be able to open a type of container", function () {
+            var someContainer = {name:"jar",container : {isOpen: false} };
+
+            itemService.open(someContainer);
+            expect(someContainer.container.isOpen).toBe(true);
         });
 
         it("should not allow a non-container to be opened", function () {
