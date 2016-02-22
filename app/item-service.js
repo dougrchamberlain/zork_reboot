@@ -1,7 +1,7 @@
 /**
  * Created by doug on 2/21/2016.
  */
-angular.module("myApp").factory("itemService", ["_","mapService", function (_,mapService) {
+angular.module("myApp").factory("itemService", ["_", "mapService", function (_, mapService) {
     "use strict";
 
     var inventory = [];
@@ -20,36 +20,37 @@ angular.module("myApp").factory("itemService", ["_","mapService", function (_,ma
         }
     };
 
+    var findByName = function (itemName, container) {
+        var itemReference = _.findWhere(container, function (name) {
+            return name == itemName || name.match(itemName);
+        });
+        return itemReference;
+    };
+
+
+    var transfer = function (fromContainer, toContainer, item) {
+        var foundItem = findByName(item,fromContainer);
+        if (foundItem) {
+            toContainer.push(foundItem);
+        }
+
+        var index = _.findIndex(fromContainer, function (i) {
+            return i.name == foundItem.name
+        })
+        if (index > -1) {
+            fromContainer.splice(index, 1);
+        }
+        else {
+            throw new Error("Item does not exist");
+        }
+        return foundItem;
+    }
+
     return {
         getInventory: function () {
             return inventory;
         },
         open: open,
-        drop: function (items) {
-            if (angular.isArray(items)) {
-                console.log(items)
-                angular.forEach(items, function (item) {
-                    console.log("dropping");
-                    mapService.currentLocation().addLoot(item);
-
-                })
-                inventory = _.reject(inventory, function (item) {
-                    return _.contains(_.pluck(items, "name"), item.name);
-                });
-
-            }
-        },
-        take: function (items) {
-            if (angular.isArray(items)) {
-                _.forEach(items, function (item) {
-                    if (item.canCarry) {
-                        inventory.push(item);
-                    }
-                })
-            }
-            else {
-                inventory.push(items);
-            }
-        }
+        transfer: transfer
     }
 }]);

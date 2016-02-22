@@ -18,46 +18,23 @@ describe("Item Service", function () {
 
     describe("Item Commands", function () {
 
-        it("should get/take single item that can be carried", function () {
-            var currentInventoryCount = itemService.getInventory().length;
-            var newItem = [{name:"mock item", canCarry: true},{name:"item 2", canCarry: false}];
-
-            itemService.take(newItem);
-
-            var newInventoryCount = itemService.getInventory().length;
-
-            expect(currentInventoryCount + 1).toBe(newInventoryCount);
-        });
-
-        it("should get/take all items that can be carried", function () {
-            var currentInventoryCount = itemService.getInventory().length;
-            var loot = [{name:"mock item", canCarry: true},{name:"item 2", canCarry: true}, {name: "item 3", canCarry: false}];
-
-            itemService.take(loot);
-
-            var newInventoryCount = itemService.getInventory().length;
-
-            expect(currentInventoryCount + 2).toBe(newInventoryCount);
-
-        });
 
         it("should drop single item only if in inventory", function () {
-            var item = {name: "hammer"};
+            var someContainer = [{name:"mock item", canCarry: true},{name:"item 2", canCarry: false}];
 
-            itemService.take([item])
-            itemService.drop([item]);
+            itemService.transfer(someContainer,itemService.getInventory(),"mock item");
 
-            expect(itemService.getInventory().length).toBe(0);
+            expect(itemService.getInventory().length).toBe(1);
 
         });
 
+        it("should fail to drop item not in  inventory", function () {
+            var someContainer = [{name:"mock item", canCarry: true},{name:"item 2", canCarry: false}];
 
-        it("should open container", function () {
-            var item = {name: "jar", container:{isOpen: false}};
-           itemService.open(item);
-
-            expect(item.container.isOpen).toBe(true);
+            itemService.transfer(someContainer,itemService.getInventory(),"mock item 2")
+            expect(itemService.transfer).toThrow(new Error("Item does not exist"));
         });
+
 
         it("should report already opened container", function () {
             var item = {name: "jar", container:{isOpen: true}};
