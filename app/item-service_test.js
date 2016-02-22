@@ -41,10 +41,19 @@ describe("Item Service", function () {
 
 
             itemService.transfer(someContainer,getJar.container.contents,"small thing");
-            console.log(getJar.container.contents);
+            item
             expect(getJar.container.contents.length).toBe(1);
         });
 
+        it("should be able to put an item in a container through chainging",function(){
+            var someContainer = [{name:"mock item", canCarry: true,container:{isOpen: false,contents:[]}}, {name:"small thing", canCarry: false}];
+            var getJar = itemService.findItemByName("mock item",someContainer);
+
+
+            itemService.transfer(someContainer,getJar.container.contents,"small thing");
+            item
+            expect(getJar.container.contents.length).toBe(1);
+        });
 
         it("should be able to open a type of container", function () {
             var someContainer = {name:"jar",container : {isOpen: false} };
