@@ -1,7 +1,19 @@
 /**
  * Created by doug on 2/21/2016.
  */
-angular.module("myApp").factory("mapService", ["_", function (_) {
+angular.module("myApp").factory("lootService", ["_", function (_) {
+
+    var loot = [];
+    return {
+        addLoot: function (room,lootItem) {
+            loot.push(lootItem);
+            return lootItem;
+        }
+        ,
+    }
+
+}]);
+angular.module("myApp").factory("mapService", ["_", "lootService", function (_, lootService) {
     var map = {currentRoom: {}};
     map.rooms = {}
 
@@ -60,7 +72,7 @@ angular.module("myApp").factory("mapService", ["_", function (_) {
     return {
         load: loadMap,
         currentLocation: function () {
-            return map.currentRoom;
+            return angular.extend(map.currentRoom, lootService);
         },
         createRooms: function (rooms) {
             _.forEach(rooms, function (room) {
@@ -70,7 +82,7 @@ angular.module("myApp").factory("mapService", ["_", function (_) {
                         north: null,
                         south: null,
                         east: null,
-                        west: null,
+                        west: null
                     }
                 }
                 map.rooms[room] = newRoom;
@@ -87,6 +99,11 @@ angular.module("myApp").factory("mapService", ["_", function (_) {
         },
         move: function (direction) {
             map.currentRoom = map.rooms[map.currentRoom.exits[direction]];
+        },
+        look: function (item) {
+            if (item.details) {
+                return item.details;
+            }
         }
     }
 }]);

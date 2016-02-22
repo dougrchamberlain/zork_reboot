@@ -19,33 +19,32 @@ angular.module("myApp", [
         controller: "appController",
         controllerAs: "vm"
     });
-}]).controller("appController", ["$scope","$resource", "_", "mapService", "itemService", function ($scope,$resource, _, mapService, itemService) {
+}]).controller("appController", ["$scope", "$resource", "_", "mapService", "itemService", function ($scope, $resource, _, mapService, itemService) {
     var vm = this;
     vm.commands = [];
     vm.status = []
     vm.player = {};
-    vm.player.inventory = [{
+    vm.player.inventory = itemService.getInventory();
+
+
+    itemService.take([{
         name: "lamp",
         life: 20,
         canActivate: true,
         canCarry: true,
         description: "Wanko brand darkness removal tool."
-    }];
+    }]);
 
-
-    vm.items = [];
-    vm.creatures = [];
-    vm.rooms = [];
-
-
-    vm.map = mapService.load({rooms:{}});
+    vm.map = mapService.load({rooms: {}});
     mapService.createRooms([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (item) {
         return "room " + item;
     }));
 
-    mapService.setLocation("room 1");
     mapService.getMap().rooms["room 1"].exits.north = "room 9";
     mapService.getMap().rooms["room 9"].exits.west = "room 1";
+    mapService.getMap().rooms["room 2"].exits.east = "room 4";
+    mapService.setLocation("room 1");
+
 
     vm.location = mapService.currentLocation();
 
@@ -54,19 +53,13 @@ angular.module("myApp", [
         return vm.location.name == "room 9" && vm.hasLitLamp();
     }
 
-    vm.hasLitLamp = function(){
-        var result =  _.find(vm.player.inventory,function(item){
-                return item.state == "on" && item.name == "lamp"});
+    vm.hasLitLamp = function () {
+        var result = _.find(vm.player.inventory, function (item) {
+            return item.state == "on" && item.name == "lamp"
+        });
         return angular.isDefined(result);
     }
 
-    vm.onActionTaken = function () {
-        vm.player.inventory.forEach(function (item) {
-            if (item.life) {
-                item.life--;
-            }
-        })
-    };
 
     var lookService = function (item, words) {
         words = words || [];
@@ -97,20 +90,9 @@ angular.module("myApp", [
         // return;
     };
 
-    vm.activateController = function () {
-        var lil = this;
-
-        lil.canActivate = function (obj) {
-            obj = obj || {};
-            return obj.canActivate;
-        };
-
-
-    }
-
-    vm.possibleExits = function(items) {
+    vm.possibleExits = function (items) {
         var result = {};
-        angular.forEach(items, function(value, key) {
+        angular.forEach(items, function (value, key) {
             if (value) {
                 result[key] = value;
             }
@@ -353,6 +335,14 @@ angular.module("myApp", [
         var itemCommand = command.match(/^(put|tie|attack|throw|turn|break|attack|kill|put|look)\s(.+\s?)\s(?:with|to|at|in)\s(\w+)$/i);
         var moveCommand = command.match(/^[nsew]$|(ne|nw|se|sw|north|south|east|west|northwest|southwest|northeast|southeast|down|up|d|u)$/i);
 
+
+        if (moveCommand) {
+            angular.forEach(moveCommand, function (item) {
+                console.log(item);
+                //mapService.move(item);
+            });
+        }
+
         var words = command.split(/(?:\s+|the|this|that|with)/g);
         var actions = [];
 
@@ -379,31 +369,11 @@ angular.module("myApp", [
         vm.status.push("You " + action.name + " at " + obj)
     };
 
-    vm.sysCommand = function (actions, objects) {
-
-        objects.forEach(function (obj) {
-            actions.forEach(function (action) {
-                action.callback(obj);
-            });
-
-            //evaluateObjectAfterAction(obj)
-        });
-
-        if (objects.length == 0) {
-            actions.forEach(function (action) {
-                if (action.needsObject == false) {
-                    action.callback();
-                }
-            });
-        }
-
-    }
 
     vm.processCommand = function (command) {
         var returnedValues = vm.parseCommand(command);
 
         if (returnedValues.isValid) {
-            vm.onActionTaken();
             vm.commands.push(command.toString());
             vm.command = "";
         }
@@ -420,8 +390,6 @@ angular.module("myApp", [
 
 
     }
-
-
 
 
 }]);
