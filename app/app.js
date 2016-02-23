@@ -111,9 +111,10 @@ angular.module("myApp", [
         },
         {
 
-            name: ["north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
+            name: ["go","north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
             needsObject: false,
-            callback: function (item) {
+            callback: function (item,words) {
+                item = item == "go" ? words[0] : item;
                 vm.status = [];
                 if (vm.location.exits[item]) {
                     mapService.move(item);
@@ -176,38 +177,7 @@ angular.module("myApp", [
         },
         {
             name: ["drop", "d"], needsObject: false, callback: function (item, words) {
-            var inventory = vm.player.inventory;
-
-            if (inventory.length == 0) {
-                vm.status.push("You have nothing to drop");
-            }
-
-            for (var i = 0, len = inventory.length - 1; i <= len; i++) {
-                if (_.find(words, function (w) {
-                        if (w == "all") {
-                            w = ".+?"
-                        }
-                        var regex = new RegExp(w, "g");
-
-                        return regex.test(inventory[i].name);
-                    })) {
-                    if (inventory[i]) {
-                        vm.location.loot.push(inventory[i]);
-                        vm.status.push(inventory[i].name + " dropped.");
-
-                    }
-                }
-            }
-            vm.location.loot.forEach(function (invItem) {
-
-                var index = _.findIndex(inventory, function (j) {
-                    return j.name == invItem.name;
-                });
-
-                if (index > -1) {
-                    inventory.splice(index, 1);
-                }
-            });
+            itemService.drop(vm.location.loot,[]);
         }
         },
 
@@ -215,42 +185,6 @@ angular.module("myApp", [
         {
             name: ["activate", "turn", "use"], callback: function (item, words) {
 
-            if (words[0] == "eric's") {
-                vm.status.push("She seems to rather enjoy that.");
-                return;
-            }
-            var item = _.find(vm.player.inventory, function (item) {
-                return item.canActivate == true && item.name == words[1];
-            });
-
-            var item = _.find(vm.player.inventory, function (item) {
-                return item.canActivate == true && item.name == words[1];
-            });
-
-            if (item) {
-                if (words[0] == "on") {
-                    if (item) {
-                        item.state = "on";
-                        if (words[1] == "lamp") {
-                            lookService();
-                        }
-                    }
-                }
-                else if (words[0] == "off") {
-                    if (item) {
-                        item.state = "off";
-                        if (words[1] == "lamp") {
-                        }
-                    }
-                }
-
-                vm.status.push(item.name + " turned" + ( " " + item.state || "."));
-            }
-            else {
-                vm.status.push("You can't do this.")
-            }
-
-            // return;
         }
         },
         {
@@ -274,12 +208,11 @@ angular.module("myApp", [
 
         //is it an item command?
         var itemCommand = command.match(/^(put|tie|attack|throw|turn|break|attack|kill|put|look)\s(.+\s?)\s(?:with|to|at|in)\s(\w+)$/i);
-        var moveCommand = command.match(/^[nsew]$|(ne|nw|se|sw|north|south|east|west|northwest|southwest|northeast|southeast|down|up|d|u)$/i);
+        var moveCommand = command.match(/^(?:go\s)[nsew]$|(ne|nw|se|sw|north|south|east|west|northwest|southwest|northeast|southeast|down|up|d|u)$/i);
 
 
         if (moveCommand) {
             angular.forEach(moveCommand, function (item) {
-                console.log(item);
                 //mapService.move(item);
             });
         }

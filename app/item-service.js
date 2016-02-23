@@ -4,10 +4,20 @@
 angular.module("myApp").factory("itemService", ["_", "mapService", function (_, mapService) {
     "use strict";
 
-    var inventory = [];
+    var inventory = {};
+    var availableItems = {};
+
+
+    var loadRoom = function(array){
+        angular.forEach(array, function(item){
+            availableItems[item.name] = item;
+        })
+
+        return availableItems;
+    };
 
     var open = function (item) {
-        var foundItem =  findItemByName(item);
+        var foundItem = findItemByName(item);
         if (item.container) {
             if (item.container.isOpen == false) {
                 item.container.isOpen = true;
@@ -23,51 +33,78 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
 
     var findItemByName = function (itemName, container) {
         var itemReference = _.find(container, function (item) {
-            var result =  (item.name == itemName ) || item.name.match(itemName);
+            var result = (item.name == itemName ) || item.name.match(itemName);
             return result;
         });
         return itemReference;
     };
 
 
-    var transfer = function (fromContainer, toContainer, item) {
-        var foundItem = findItemByName(item,fromContainer);
-        if (foundItem) {
-            toContainer.push(foundItem);
-        }
-
-        var index = _.findIndex(fromContainer, function (i) {
-            return i.name == foundItem.name
-        })
-        if (index > -1) {
-            fromContainer.splice(index, 1);
+    var getItemNames = function (items) {
+        var result
+        if
+        (!angular.isArray(items)) {
+            result = [{name: items}];
         }
         else {
-            throw new Error("Item does not exist");
+            result = items;
         }
-    }
+        return result;
+    };
+    var put = function () {
+
+    };
+
+    var take = function (item) {
+        var foundItem = availableItems[item];
+
+        if (foundItem && foundItem.canCarry) {
+            inventory[foundItem.name] = foundItem;
+            delete availableItems[foundItem.name];
+            console.log(foundItem.name + " taken.");
+        }
+
+
+
+    };
+
+    var drop = function (item) {
+        var foundItem = inventory[item];
+
+        if (foundItem) {
+            availableItems[foundItem.name] = foundItem;
+            delete inventory[foundItem.name];
+            console.log(foundItem.name + " dropped.");
+        }
+
+
+
+    };
+
+    var read = function (item) {
+        var results = findItemByName(item, inventory).details;
+
+        return results.text;
+    };
 
     return {
         getInventory: function () {
             return inventory;
         },
-        open: open,
-        take: function(fromContainer,toContainer,item){
-            var foundItem;
-            if(angular.isString(item)){
-                foundItem = findItemByName(item,fromContainer);
-                if(foundItem.canCarry){
-                    transfer(fromContainer,toContainer,foundItem.name);
-                }
-
-            }
+        getAvailable: function(){
+            return availableItems;
         },
-        transfer: transfer,
+        loadRoom: loadRoom,
+        open: open,
+        put: put,
+        read: read,
+        take: take,
+        drop: drop,
         findItemByName: findItemByName,
-        look: function(item,container){
+        look: function (item, container) {
             var foundItem;
-            if(angular.isString(item)){
-                foundItem = findItemByName(item,container);
+            if (angular.isString(item)) {
+                foundItem = findItemByName(item, container);
             }
 
 
