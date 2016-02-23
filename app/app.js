@@ -27,13 +27,13 @@ angular.module("myApp", [
     vm.player.inventory = itemService.getInventory();
 
 
-    itemService.take([{
+    itemService.transfer([{
         name: "lamp",
         life: 20,
         canActivate: true,
         canCarry: true,
-        description: "Wanko brand darkness removal tool."
-    }]);
+        details:{ description: "Wanko brand darkness removal tool."}
+    }],vm.player.inventory,"lamp");
 
     vm.map = mapService.load({rooms: {}});
     mapService.createRooms([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (item) {
@@ -171,42 +171,7 @@ angular.module("myApp", [
 
         {
             name: ["take", "get"], needsObject: false, callback: function (item, words) {
-            var loot = vm.location.loot;
-
-            if (loot.length == 0) {
-                vm.status.push("nothing to take.");
-            }
-
-
-            for (var i = 0, len = loot.length - 1; i <= len; i++) {
-                if (_.find(words, function (w) {
-                        if (w == "all") {
-                            w = ".+?"
-                        }
-                        var regex = new RegExp(w, "g");
-
-                        return regex.test(loot[i].name);
-                    })) {
-                    if (loot[i].canCarry) {
-                        vm.player.inventory.push(loot[i]);
-                        vm.status.push(loot[i].name + " taken.");
-
-                    }
-                    else if (!loot[i].canCarry) {
-                        vm.status.push(loot[i].name + " can not be taken.");
-                    }
-                }
-            }
-            vm.player.inventory.forEach(function (invItem) {
-
-                var index = _.findIndex(loot, function (j) {
-                    return j.name == invItem.name;
-                });
-
-                if (index > -1) {
-                    loot.splice(index, 1);
-                }
-            });
+                itemService.take(vm.location.loot,vm.player.inventory,words[0]);
         }
         },
         {
@@ -298,34 +263,10 @@ angular.module("myApp", [
 
         {
             name: ["desc", "describe", "examine"], callback: function (item, words) {
-            var inventory, loot, monsters;
-            var foundThing;
+            var details = itemService.look(words[0],vm.player.inventory);
 
-            inventory = _.find(vm.player.inventory, function (item) {
-                return item.name == words[0];
-            });
+            vm.status.push(details.description);
 
-
-            loot = _.find(vm.location.loot, function (item) {
-                return item.name == words[0];
-            });
-
-            monsters = _.find(vm.location.monsters, function (item) {
-                return item.name == words[0];
-            });
-
-            foundThing = inventory || loot || monsters;
-
-            if (!foundThing && words[0] == vm.location.name) {
-                vm.status.push(vm.location.description);
-            }
-            else if (foundThing) {
-                vm.status.push("This " + foundThing.name + " is a " + foundThing.description);
-
-            }
-
-
-            // return;s
         }
         }];
 

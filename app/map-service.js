@@ -78,6 +78,7 @@ angular.module("myApp").factory("mapService", ["_", "lootService", function (_, 
             _.forEach(rooms, function (room) {
                 var newRoom = {
                     name: room,
+                    loot: [],
                     exits: {
                         north: null,
                         south: null,

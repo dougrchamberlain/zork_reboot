@@ -19,12 +19,12 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         else {
             throw new Error("You can't open that.");
         }
-        return this;
     };
 
     var findItemByName = function (itemName, container) {
-        var itemReference = _.findWhere(container, function (name) {
-            return name == itemName || name.match(itemName);
+        var itemReference = _.find(container, function (item) {
+            var result =  (item.name == itemName ) || item.name.match(itemName);
+            return result;
         });
         return itemReference;
     };
@@ -45,7 +45,6 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         else {
             throw new Error("Item does not exist");
         }
-       return this
     }
 
     return {
@@ -53,6 +52,16 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
             return inventory;
         },
         open: open,
+        take: function(fromContainer,toContainer,item){
+            var foundItem;
+            if(angular.isString(item)){
+                foundItem = findItemByName(item,fromContainer);
+                if(foundItem.canCarry){
+                    transfer(fromContainer,toContainer,foundItem.name);
+                }
+
+            }
+        },
         transfer: transfer,
         findItemByName: findItemByName,
         look: function(item,container){
