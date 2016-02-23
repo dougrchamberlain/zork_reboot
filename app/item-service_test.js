@@ -41,17 +41,6 @@ describe("Item Service", function () {
 
 
             itemService.transfer(someContainer,getJar.container.contents,"small thing");
-            item
-            expect(getJar.container.contents.length).toBe(1);
-        });
-
-        it("should be able to put an item in a container through chainging",function(){
-            var someContainer = [{name:"mock item", canCarry: true,container:{isOpen: false,contents:[]}}, {name:"small thing", canCarry: false}];
-            var getJar = itemService.findItemByName("mock item",someContainer);
-
-
-            itemService.transfer(someContainer,getJar.container.contents,"small thing");
-            item
             expect(getJar.container.contents.length).toBe(1);
         });
 
@@ -67,6 +56,14 @@ describe("Item Service", function () {
             expect(function(){
                 itemService.open(item);
             }).toThrow(new Error("You can't open that."));
+        });
+
+        it("should look at an item and get all the details", function () {
+            var item = {name: "jar", details: {description: "long description"}};
+
+            itemService.transfer([item],itemService.getInventory(),"jar");
+            var details = itemService.look("jar",itemService.getInventory());
+            expect(details.description).toBe("long description");
         });
 
     });

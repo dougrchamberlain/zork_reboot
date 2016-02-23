@@ -98,7 +98,12 @@ angular.module("myApp").factory("mapService", ["_", "lootService", function (_, 
             }
         },
         move: function (direction) {
-            map.currentRoom = map.rooms[map.currentRoom.exits[direction]];
+            if(map.currentRoom.exits[direction]) {
+                map.currentRoom = map.rooms[map.currentRoom.exits[direction]];
+            }
+            else {
+                throw new Error("You can't go that way");
+            }
         },
         look: function (item) {
             if (item.details) {

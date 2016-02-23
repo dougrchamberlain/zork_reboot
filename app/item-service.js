@@ -54,6 +54,15 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         },
         open: open,
         transfer: transfer,
-        findItemByName: findItemByName
+        findItemByName: findItemByName,
+        look: function(item,container){
+            var foundItem;
+            if(angular.isString(item)){
+                foundItem = findItemByName(item,container);
+            }
+
+
+            return foundItem.details;
+        }
     }
 }]);
