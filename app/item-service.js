@@ -8,8 +8,8 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
     var availableItems = {};
 
 
-    var loadRoom = function(array){
-        angular.forEach(array, function(item){
+    var loadRoom = function (array) {
+        angular.forEach(array, function (item) {
             availableItems[item.name] = item;
         })
 
@@ -17,13 +17,14 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
     };
 
     var open = function (item) {
-        var foundItem = findItemByName(item);
-        if (item.container) {
-            if (item.container.isOpen == false) {
-                item.container.isOpen = true;
+        var foundItem = inventory[item] || availableItems[item];
+        if (foundItem.container) {
+            if (foundItem.container.isOpen == false) {
+                foundItem.container.isOpen = true;
+                console.log(foundItem.name + " opened.")
             }
             else {
-                throw new Error(item.name + " already opened");
+                console.log(foundItem.name + " already opened");
             }
         }
         else {
@@ -31,28 +32,22 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         }
     };
 
-    var findItemByName = function (itemName, container) {
-        var itemReference = _.find(container, function (item) {
-            var result = (item.name == itemName ) || item.name.match(itemName);
-            return result;
-        });
-        return itemReference;
-    };
-
-
-    var getItemNames = function (items) {
-        var result
-        if
-        (!angular.isArray(items)) {
-            result = [{name: items}];
+    var put = function (item) {
+        var foundItem = availableItems[item] || inventory[item];
+        return {
+            into: function (container) {
+                var foundContainer = availableItems[container] || inventory[container];
+                if (foundContainer.container.contents && foundContainer.container.isOpen) {
+                    foundContainer.container.contents[item] = foundItem;
+                    console.log("You put the " + foundItem.name + " into " + foundContainer.name);
+                    delete availableItems[item];
+                    delete inventory[item];
+                }
+                else{
+                    console.log(foundContainer.name + " is not open. do you want to open it?");
+                }
+            }
         }
-        else {
-            result = items;
-        }
-        return result;
-    };
-    var put = function () {
-
     };
 
     var take = function (item) {
@@ -63,7 +58,6 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
             delete availableItems[foundItem.name];
             console.log(foundItem.name + " taken.");
         }
-
 
 
     };
@@ -78,21 +72,32 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         }
 
 
-
     };
 
     var read = function (item) {
-        var results = findItemByName(item, inventory).details;
+        var results = availableItems[item] || inventory[item];
 
         return results.text;
     };
 
     return {
         getInventory: function () {
-            return inventory;
+            return {
+                count: function () {
+                    return Object.keys(inventory).length;
+                },
+                inventory: inventory
+            };
         },
-        getAvailable: function(){
-            return availableItems;
+        getAvailable: function () {
+            return {
+                count: function () {
+                    return Object.keys(availableItems).length;
+                }
+                ,
+                items: availableItems
+            };
+
         },
         loadRoom: loadRoom,
         open: open,
@@ -100,15 +105,25 @@ angular.module("myApp").factory("itemService", ["_", "mapService", function (_, 
         read: read,
         take: take,
         drop: drop,
-        findItemByName: findItemByName,
-        look: function (item, container) {
-            var foundItem;
-            if (angular.isString(item)) {
-                foundItem = findItemByName(item, container);
+        look: function (item) {
+            var lookAt = availableItems[item] || inventory[item];
+            var details;
+            if (item && angular.isString(item)) {
+                details = lookAt.details || {};
+                console.log("You see a " + lookAt.name + ". " + details.description);
             }
+            else {
+                angular.forEach(availableItems, function (detail) {
 
+                    if (detail) {
+                        console.log("You see a " + detail.name);
 
-            return foundItem.details;
+                    }
+
+                })
+            }
+            return details;
         }
     }
-}]);
+}])
+;

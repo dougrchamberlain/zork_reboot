@@ -24,16 +24,20 @@ angular.module("myApp", [
     vm.commands = [];
     vm.status = []
     vm.player = {};
-    vm.player.inventory = itemService.getInventory();
+    vm.player.inventory = itemService.getInventory().inventory;
 
-
-    itemService.transfer([{
+    var startingItems = [{
         name: "lamp",
         life: 20,
         canActivate: true,
         canCarry: true,
-        details:{ description: "Wanko brand darkness removal tool."}
-    }],vm.player.inventory,"lamp");
+        details: {description: "Wanko brand darkness removal tool."}
+    },
+        {name: "jar",canCarry: true,container: {isOpen: false,contents:{}}, details: {description: "long description"}, text: "A Mason jar is a molded glass jar used in home canning to preserve food. The mouth of the jar has screw threads on its outer perimeter to accept a metal ring (or \"band\"). The band, when screwed down, presses a separate stamped steel disc-shaped lid against the rim of the jar. An integral rubber ring on the underside of the lid creates a hermetic seal to the jar. The bands and lids usually come with new jars, and bands and lids are also sold separately; while the bands are reusable, the lids are intended for single use when canning.                While largely supplanted by other methods, such as the tin can and plastic containers, for commercial mass production, they are still commonly used in home canning.                The Mason jar was invented and patented in 1858 by Philadelphia tinsmith John Landis Mason[1][2] (1832–1902). Among other common names for them are Ball jars, after Ball Corporation, an early and prolific manufacturer of the jars; fruit jars for a common content; and simply glass canning jars reflecting their material."            },
+        {name: "butterfly"}
+    ]
+
+    itemService.loadRoom(startingItems);
 
     vm.map = mapService.load({rooms: {}});
     mapService.createRooms([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (item) {
@@ -60,31 +64,6 @@ angular.module("myApp", [
         return angular.isDefined(result);
     }
 
-
-    var lookService = function (item, words) {
-        words = words || [];
-        if (words.length == 1) {
-            vm.status.push("You look at " + (item.name || "nothing."));
-        }
-        else {
-            if (vm.location.loot) {
-                vm.status.push("You look around. You can see: ");
-                vm.location.loot.filter(function (l) {
-                    return !l.inventory
-                }).forEach(function (lootItem) {
-                    vm.status.push(lootItem.name + " " + (lootItem.state || ""));
-                });
-            }
-
-        }
-    };
-    //return;
-
-    vm.describeRoom = function (locationId) {
-        console.log();
-        return vm.location.longDescription;
-    };
-
     var clearService = function (item) {
         vm.status = [];
         // return;
@@ -102,18 +81,25 @@ angular.module("myApp", [
 
     var possibleActions = [
         {
-            name: ["look", "l"], needsObject: false, callback: lookService
+            name: ["look", "l"], needsObject: false, callback: function (item) {
+            if(item.length == 0){
+                itemService.look();
+            }
+            angular.forEach(item, function (i) {
+                itemService.look(i);
+            });
+        }
         },
         {
-            name: ["listen"], callback: function (item) {
-            //return;
+            name: ["put"], callback: function (items) {
+            itemService.put(items[0]).into(items[2]);
         }
         },
         {
 
-            name: ["go","north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
+            name: ["go", "north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
             needsObject: false,
-            callback: function (item,words) {
+            callback: function (item, words) {
                 item = item == "go" ? words[0] : item;
                 vm.status = [];
                 if (vm.location.exits[item]) {
@@ -128,63 +114,39 @@ angular.module("myApp", [
             }
         },
         {
-            name: ["talk"], callback: function (item, words) {
-            // return;
+            name: ["read"], callback: function (item) {
+            itemService.read(item[0]);
         }
         },
         {
             name: ["clear"], needsObject: false, callback: clearService
         },
         {
-            name: ["open"], needsObject: false, callback: function (item, words) {
-            var inventory, loot, monsters;
-            var foundThing;
-
-            inventory = _.find(vm.player.inventory, function (item) {
-                return item.name == words[0];
-            });
-
-
-            loot = _.find(vm.location.loot, function (item) {
-                return item.name == words[0];
-            });
-
-            monsters = _.find(vm.location.monsters, function (item) {
-                return item.name == words[0];
-            });
-
-            foundThing = inventory || loot || monsters;
-
-            if (!foundThing || !foundThing.type == "container") {
-                vm.status.push("You can't open that.");
-            }
-            else if (foundThing && foundThing.isOpen == false) {
-                foundThing.isOpen = true;
-                vm.status.push("You open the " + foundThing.name + ".");
-
-            }
-            else if (foundThing && foundThing.isOpen) {
-                vm.status.push(foundThing.name + " is already opened.");
-            }
+            name: ["open"], needsObject: false, callback: function(item) {
+                itemService.open(item[0]);
 
         }
         },
 
         {
-            name: ["take", "get"], needsObject: false, callback: function (item, words) {
-                itemService.take(vm.location.loot,vm.player.inventory,words[0]);
+            name: ["take", "get"], needsObject: false, callback: function (item) {
+            angular.forEach(item, function (i) {
+                itemService.take(i);
+            });
         }
         },
         {
-            name: ["drop", "d"], needsObject: false, callback: function (item, words) {
-            itemService.drop(vm.location.loot,[]);
+            name: ["drop", "d"], needsObject: false, callback: function (item) {
+            angular.forEach(item, function (i) {
+                itemService.drop(i);
+            });
         }
         },
 
 
         {
             name: ["activate", "turn", "use"], callback: function (item, words) {
-
+                itemService.getInventory().inventory["lamp"].state = "on";
         }
         },
         {
@@ -197,7 +159,7 @@ angular.module("myApp", [
 
         {
             name: ["desc", "describe", "examine"], callback: function (item, words) {
-            var details = itemService.look(words[0],vm.player.inventory);
+            var details = itemService.look(words[0]);
 
             vm.status.push(details.description);
 
@@ -226,7 +188,7 @@ angular.module("myApp", [
                 if (_.contains(words, name)) {
                     actions.push(action);
                     words.splice(_.findWhere(words, name), 1);
-                    action.callback(name, words);
+                    action.callback(words);
                 }
             })
         });
@@ -266,4 +228,5 @@ angular.module("myApp", [
     }
 
 
-}]);
+}])
+;
