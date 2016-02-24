@@ -237,5 +237,50 @@ angular.module("myApp", [
     }
 
 
+}]).service("playerService", ["$controller", function ($controller) {
+    this.greet = function () {
+        return "hello";
+    }
+
+    this.health = $controller("healthController");
+}]).controller("healthController", [function () {
+    var vm = this;
+
+    vm.amount = 100;
+
+    vm.takeHit = function () {
+        vm.amount -= 10;
+    }
+
+    vm.restore = function(){
+        vm.amount += 10;
+    }
+
+    vm.isDead = function(){
+        return vm.amount < 1;
+    }
+
+
+}]).controller("lightController", [function () {
+    var vm = this;
+
+    vm.amount = 100;
+
+    vm.turnOn = function () {
+        if(vm.amount > 0) {
+            vm.state = "on";
+        }
+    }
+
+    vm.turnOff = function(){
+        if(vm.amount > 0) {
+            vm.state = "off";
+        }
+    }
+
+    vm.state = function(){
+        return vm.state;
+    }
+
+
 }])
-;
