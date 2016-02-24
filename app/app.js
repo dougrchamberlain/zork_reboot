@@ -6,13 +6,15 @@ angular.module("underscore", []).factory("_", ["$window", function ($window) {
 
 // Declare app level module which depends on views, and components
 angular.module("myApp", [
-    "ui.router", "ui.bootstrap",
+    "ui.router",
+    "ui.bootstrap",
     "ngAnimate",
     "ngResource",
     "underscore"
 ]).factory("messageFactory", ["_", function (_) {
 
-}]).config(["$stateProvider", function ($stateProvider) {
+}]).config(["$stateProvider", "$urlRouterProvider", function ($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.otherwise('/');
     $stateProvider.state("game", {
         url: "/",
         templateUrl: "game.html",
@@ -33,20 +35,24 @@ angular.module("myApp", [
         canCarry: true,
         details: {description: "Wanko brand darkness removal tool."}
     },
-        {name: "jar",canCarry: true,container: {isOpen: false,contents:{}}, details: {description: "long description"}, text: "A Mason jar is a molded glass jar used in home canning to preserve food. The mouth of the jar has screw threads on its outer perimeter to accept a metal ring (or \"band\"). The band, when screwed down, presses a separate stamped steel disc-shaped lid against the rim of the jar. An integral rubber ring on the underside of the lid creates a hermetic seal to the jar. The bands and lids usually come with new jars, and bands and lids are also sold separately; while the bands are reusable, the lids are intended for single use when canning.                While largely supplanted by other methods, such as the tin can and plastic containers, for commercial mass production, they are still commonly used in home canning.                The Mason jar was invented and patented in 1858 by Philadelphia tinsmith John Landis Mason[1][2] (1832–1902). Among other common names for them are Ball jars, after Ball Corporation, an early and prolific manufacturer of the jars; fruit jars for a common content; and simply glass canning jars reflecting their material."            },
+        {
+            name: "jar",
+            canCarry: true,
+            container: {isOpen: false, contents: {}},
+            details: {description: "long description"},
+            text: "A Mason jar is a molded glass jar used in home canning to preserve food. The mouth of the jar has screw threads on its outer perimeter to accept a metal ring (or \"band\"). The band, when screwed down, presses a separate stamped steel disc-shaped lid against the rim of the jar. An integral rubber ring on the underside of the lid creates a hermetic seal to the jar. The bands and lids usually come with new jars, and bands and lids are also sold separately; while the bands are reusable, the lids are intended for single use when canning.                While largely supplanted by other methods, such as the tin can and plastic containers, for commercial mass production, they are still commonly used in home canning.                The Mason jar was invented and patented in 1858 by Philadelphia tinsmith John Landis Mason[1][2] (1832–1902). Among other common names for them are Ball jars, after Ball Corporation, an early and prolific manufacturer of the jars; fruit jars for a common content; and simply glass canning jars reflecting their material."
+        },
         {name: "butterfly", canCarry: true}
     ]
 
 
-
-
     vm.map = mapService.load({rooms: {}});
     mapService.createRooms([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (item) {
-        itemService.loadRoom([],"room " + item);
+        itemService.loadRoom([], "room " + item);
         return "room " + item;
     }));
 
-    itemService.loadRoom(startingItems,"room 1");
+    itemService.loadRoom(startingItems, "room 1");
 
     mapService.getMap().rooms["room 1"].exits.north = "room 2";
     mapService.getMap().rooms["room 2"].exits.east = "room 1";
@@ -61,11 +67,11 @@ angular.module("myApp", [
     }
 
     vm.hasLitLamp = function () {
-        var result =  itemService.getInventory().inventory["lamp"] || itemService.getAvailable().items[vm.location.name].contents["lamp"];
-        if(result){
+        var result = itemService.getInventory().inventory["lamp"] || itemService.getAvailable().items[vm.location.name].contents["lamp"];
+        if (result) {
             result.state = result.state || "off";
         }
-          return result.state == "on";
+        return result.state == "on";
     }
 
     var clearService = function (item) {
@@ -86,7 +92,7 @@ angular.module("myApp", [
     var possibleActions = [
         {
             name: ["look", "l"], needsObject: false, callback: function (item) {
-            if(item.length == 0){
+            if (item.length == 0) {
                 itemService.look();
             }
             angular.forEach(item, function (i) {
@@ -101,7 +107,7 @@ angular.module("myApp", [
         },
         {
 
-            name: [ "north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
+            name: ["north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
             needsObject: false,
             callback: function (item, words) {
                 item = item == "go" ? words[0] : item;
@@ -109,7 +115,7 @@ angular.module("myApp", [
                 if (vm.location.exits[item]) {
                     mapService.move(item);
                     vm.location = mapService.currentLocation();
-                    itemService.loadRoom([],vm.location.name);
+                    itemService.loadRoom([], vm.location.name);
                     itemService.look();
                 }
                 else {
@@ -128,8 +134,8 @@ angular.module("myApp", [
             name: ["clear"], needsObject: false, callback: clearService
         },
         {
-            name: ["open"], needsObject: false, callback: function(item) {
-                itemService.open(item[0]);
+            name: ["open"], needsObject: false, callback: function (item) {
+            itemService.open(item[0]);
 
         }
         },
@@ -152,8 +158,8 @@ angular.module("myApp", [
 
         {
             name: ["activate", "turn", "use"], callback: function (item, words) {
-              var lamp =   itemService.getInventory().inventory["lamp"] || itemService.getAvailable().items["lamp"];
-            if(lamp){
+            var lamp = itemService.getInventory().inventory["lamp"] || itemService.getAvailable().items["lamp"];
+            if (lamp) {
                 lamp.state = "on";
             }
         }
@@ -191,7 +197,7 @@ angular.module("myApp", [
                 if (_.contains(words, name)) {
                     actions.push(action);
                     words.splice(_.findWhere(words, name), 1);
-                        action.callback(words);
+                    action.callback(words);
                 }
             })
         });
