@@ -34,19 +34,22 @@ angular.module("myApp", [
         details: {description: "Wanko brand darkness removal tool."}
     },
         {name: "jar",canCarry: true,container: {isOpen: false,contents:{}}, details: {description: "long description"}, text: "A Mason jar is a molded glass jar used in home canning to preserve food. The mouth of the jar has screw threads on its outer perimeter to accept a metal ring (or \"band\"). The band, when screwed down, presses a separate stamped steel disc-shaped lid against the rim of the jar. An integral rubber ring on the underside of the lid creates a hermetic seal to the jar. The bands and lids usually come with new jars, and bands and lids are also sold separately; while the bands are reusable, the lids are intended for single use when canning.                While largely supplanted by other methods, such as the tin can and plastic containers, for commercial mass production, they are still commonly used in home canning.                The Mason jar was invented and patented in 1858 by Philadelphia tinsmith John Landis Mason[1][2] (1832–1902). Among other common names for them are Ball jars, after Ball Corporation, an early and prolific manufacturer of the jars; fruit jars for a common content; and simply glass canning jars reflecting their material."            },
-        {name: "butterfly"}
+        {name: "butterfly", canCarry: true}
     ]
 
-    itemService.loadRoom(startingItems);
+
+
 
     vm.map = mapService.load({rooms: {}});
     mapService.createRooms([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (item) {
+        itemService.loadRoom([],"room " + item);
         return "room " + item;
     }));
 
-    mapService.getMap().rooms["room 1"].exits.north = "room 9";
-    mapService.getMap().rooms["room 9"].exits.west = "room 1";
-    mapService.getMap().rooms["room 2"].exits.east = "room 4";
+    itemService.loadRoom(startingItems,"room 1");
+
+    mapService.getMap().rooms["room 1"].exits.north = "room 2";
+    mapService.getMap().rooms["room 2"].exits.east = "room 1";
     mapService.setLocation("room 1");
 
 
@@ -58,10 +61,11 @@ angular.module("myApp", [
     }
 
     vm.hasLitLamp = function () {
-        var result = _.find(vm.player.inventory, function (item) {
-            return item.state == "on" && item.name == "lamp"
-        });
-        return angular.isDefined(result);
+        var result =  itemService.getInventory().inventory["lamp"] || itemService.getAvailable().items[vm.location.name].contents["lamp"];
+        if(result){
+            result.state = result.state || "off";
+        }
+          return result.state == "on";
     }
 
     var clearService = function (item) {
@@ -97,7 +101,7 @@ angular.module("myApp", [
         },
         {
 
-            name: ["go", "north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
+            name: [ "north", "south", "west", "east", "northeast", "southeast", "southwest", "northwest"],
             needsObject: false,
             callback: function (item, words) {
                 item = item == "go" ? words[0] : item;
@@ -105,6 +109,8 @@ angular.module("myApp", [
                 if (vm.location.exits[item]) {
                     mapService.move(item);
                     vm.location = mapService.currentLocation();
+                    itemService.loadRoom([],vm.location.name);
+                    itemService.look();
                 }
                 else {
                     vm.status.push("You can't go that way");
@@ -146,7 +152,10 @@ angular.module("myApp", [
 
         {
             name: ["activate", "turn", "use"], callback: function (item, words) {
-                itemService.getInventory().inventory["lamp"].state = "on";
+              var lamp =   itemService.getInventory().inventory["lamp"] || itemService.getAvailable().items["lamp"];
+            if(lamp){
+                lamp.state = "on";
+            }
         }
         },
         {
@@ -170,14 +179,8 @@ angular.module("myApp", [
 
         //is it an item command?
         var itemCommand = command.match(/^(put|tie|attack|throw|turn|break|attack|kill|put|look)\s(.+\s?)\s(?:with|to|at|in)\s(\w+)$/i);
-        var moveCommand = command.match(/^(?:go\s)[nsew]$|(ne|nw|se|sw|north|south|east|west|northwest|southwest|northeast|southeast|down|up|d|u)$/i);
+        var moveCommand = command.match(/^(?:go\s)?([nsew]$|(ne|nw|se|sw|north|south|east|west|northwest|southwest|northeast|southeast|down|up|d|u))$/i);
 
-
-        if (moveCommand) {
-            angular.forEach(moveCommand, function (item) {
-                //mapService.move(item);
-            });
-        }
 
         var words = command.split(/(?:\s+|the|this|that|with)/g);
         var actions = [];
@@ -188,7 +191,7 @@ angular.module("myApp", [
                 if (_.contains(words, name)) {
                     actions.push(action);
                     words.splice(_.findWhere(words, name), 1);
-                    action.callback(words);
+                        action.callback(words);
                 }
             })
         });
