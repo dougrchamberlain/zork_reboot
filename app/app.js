@@ -21,7 +21,7 @@ angular.module("myApp", [
         controller: "appController",
         controllerAs: "vm"
     });
-}]).controller("appController", ["$scope", "$resource", "_", "mapService", "itemService", function ($scope, $resource, _, mapService, itemService) {
+}]).controller("appController", ["$scope", "$resource", "_", "mapService", "itemService", "playerService", function ($scope, $resource, _, mapService, itemService, playerService) {
     var vm = this;
     vm.commands = [];
     vm.status = []
@@ -42,7 +42,7 @@ angular.module("myApp", [
             details: {description: "long description"},
             text: "A Mason jar is a molded glass jar used in home canning to preserve food. The mouth of the jar has screw threads on its outer perimeter to accept a metal ring (or \"band\"). The band, when screwed down, presses a separate stamped steel disc-shaped lid against the rim of the jar. An integral rubber ring on the underside of the lid creates a hermetic seal to the jar. The bands and lids usually come with new jars, and bands and lids are also sold separately; while the bands are reusable, the lids are intended for single use when canning.                While largely supplanted by other methods, such as the tin can and plastic containers, for commercial mass production, they are still commonly used in home canning.                The Mason jar was invented and patented in 1858 by Philadelphia tinsmith John Landis Mason[1][2] (1832–1902). Among other common names for them are Ball jars, after Ball Corporation, an early and prolific manufacturer of the jars; fruit jars for a common content; and simply glass canning jars reflecting their material."
         },
-        {name: "butterfly", canCarry: true}
+        {name: "butterfly", canCarry: true, player: playerService}
     ]
 
 
@@ -167,7 +167,12 @@ angular.module("myApp", [
         {
             name: ["fight", "attack", "kill"], callback: function (item, words) {
 
+            playerService.health.takeHit(100);
 
+            if (playerService.health.isDead()) {
+                console.log("you are dead");
+                console.log(itemService.getAvailable().items["room 1"].contents["butterfly"].player.health.amount)
+            }
             // return;s
         }
         },
@@ -238,47 +243,34 @@ angular.module("myApp", [
 
 
 }]).service("playerService", ["$controller", function ($controller) {
-    this.greet = function () {
-        return "hello";
+    function Player() {
+        this.greet = function () {
+            return "hello";
+        }
+
+
+        this.health = $controller("healthController");
     }
 
-    this.health = $controller("healthController");
-}]).controller("healthController", [function () {
-    var vm = this;
-
-    vm.amount = 100;
-
-    vm.takeHit = function () {
-        vm.amount -= 10;
-    }
-
-    vm.restore = function(){
-        vm.amount += 10;
-    }
-
-    vm.isDead = function(){
-        return vm.amount < 1;
-    }
-
-
+    return new Player();
 }]).controller("lightController", [function () {
     var vm = this;
 
     vm.amount = 100;
 
     vm.turnOn = function () {
-        if(vm.amount > 0) {
+        if (vm.amount > 0) {
             vm.state = "on";
         }
     }
 
-    vm.turnOff = function(){
-        if(vm.amount > 0) {
+    vm.turnOff = function () {
+        if (vm.amount > 0) {
             vm.state = "off";
         }
     }
 
-    vm.state = function(){
+    vm.state = function () {
         return vm.state;
     }
 
