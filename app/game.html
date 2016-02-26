@@ -3,8 +3,9 @@
 <!--</ul>-->
 <div class="container-fluid">
     <!-- Modal -->
-
-<pre>{{vm.location}}</pre>
+<pre>{{vm.player.health.current}}</pre>
+<i ng-class="{'glyphicon-heart' : vm.player.health.current >= 20 * $index, 'glyphicon-heart-empty' : vm.player.health.current < 20 * $index}" class="glyphicon" ng-repeat="heart in [1,2,3,4,5]"></i>
+    <button ng-click="vm.player.attack(vm.player,50)"> hit yourself </button>
     <div class="row">
         <div class="col-xs-8">
             <ul>
