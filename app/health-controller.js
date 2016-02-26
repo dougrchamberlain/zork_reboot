@@ -21,7 +21,7 @@ angular.module("myApp").controller("healthController", [function () {
     vm.isDead = function () {
         return amount < 1;
     }
-}]).controller("containerController", ["$controller",function ($controller) {
+}]).controller("containerController", ["$controller", function ($controller) {
 
     const OPEN = 0;
     const CLOSED = 1;
@@ -29,9 +29,8 @@ angular.module("myApp").controller("healthController", [function () {
 
     var vm = this;
 
-    var currentState = OPEN;
-
     vm.health = $controller("healthController");
+    var currentState = OPEN;
 
     vm.getState = function(){
         return currentState;
@@ -55,7 +54,6 @@ angular.module("myApp").controller("healthController", [function () {
         if(currentState !== OPEN && currentState != CLOSED ) {
             currentState = LOCKED - 1;
         }
-
         return currentState == CLOSED;
     }
 
@@ -71,10 +69,12 @@ angular.module("myApp").controller("healthController", [function () {
 }]).factory("damageService",function(){
     return {
         attackByAmount : function(item, amount){
-            item.health.takeHit(amount);
-            console.log("dealing " + amount + " damage to " + item);
-            console.log(item.name + " now has " + item.health.getHealth());
-            return this;
+            if(item.health){
+                item.health.takeHit(amount);
+                console.log("dealing " + amount + " damage to " + item);
+                console.log(item.name + " now has " + item.health.getHealth());
+            }
+
         }
     }
 

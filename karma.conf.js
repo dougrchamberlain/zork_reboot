@@ -1,6 +1,6 @@
 module.exports = function (config) {
     config.set({
-        logLevel: "LOG_INFO",
+        logLevel: "LOG_ERROR",
         files: [
             'bower_components/underscore/underscore.js',
             'bower_components/angular/angular.js',

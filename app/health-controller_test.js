@@ -1,7 +1,7 @@
 /**
  * Created by dchamberlain on 2/25/2016.
  */
-fdescribe("Health Controller Test", function () {
+describe("Health Controller Test", function () {
 
     var $controller, _, $rootScope,$scope;
 
@@ -124,9 +124,40 @@ fdescribe("Health Controller Test", function () {
         expect(isOpen).toBe(true);
     });
 
-    fit("should beat a container open but with the damageService",inject(function(damageService) {
+    it("should beat a container open but with the damageService",inject(function(damageService) {
 
-        var item = angular.extend({name: "jar"},$controller("containerController"),  $controller("healthController"));
+        //TODO: create a base object to hand my controllers off of
+        var item = angular.extend({name: "jar"},$controller("containerController"));
+
+        item.lock();
+
+        damageService.attackByAmount(item, 51);
+
+        var isOpen = item.open();
+
+        expect(isOpen).toBe(true);
+    }));
+
+
+    it("should beat a container open but with the damageService",inject(function(damageService) {
+
+        //TODO: create a base object to hand my controllers off of
+        var item = angular.extend({name: "jar"},$controller("containerController"));
+
+        item.lock();
+
+        damageService.attackByAmount(item, 51);
+
+        var isOpen = item.open();
+
+        expect(isOpen).toBe(true);
+    }));
+
+
+    it("should attack if it's an enemy",inject(function(damageService) {
+
+        //TODO: create a base object to hand my controllers off of
+        var item = angular.extend({name: "jar"},$controller("enemyController"));
 
         item.lock();
 
