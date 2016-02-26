@@ -4,22 +4,24 @@
 angular.module("myApp").controller("healthController", [function () {
     var vm = this;
 
-    var amount = 100;
+    var health = 100;
 
-    vm.getHealth = function () {
-        return amount;
+
+    vm.getHealth = function(){
+        return health;
     }
 
+
     vm.takeHit = function (a) {
-        amount -= a || 10;
+        health -= a || 10;
     }
 
     vm.restore = function (a) {
-        amount += a || 10;
+        health += a || 10;
     }
 
     vm.isDead = function () {
-        return amount < 1;
+        return health < 1;
     }
 }]).controller("containerController", ["$controller", function ($controller) {
 
@@ -78,4 +80,22 @@ angular.module("myApp").controller("healthController", [function () {
         }
     }
 
-});
+}).controller("enemyController",["$controller",function($controller){
+    var vm = this;
+
+    vm.health = $controller("healthController");
+
+    vm.attack = function(gameObject){
+        if(gameObject.takeHit){
+            gameObject.takeHit(10);
+        }
+    }
+}])
+    .controller("playerController",["$controller",function($controller){
+        var vm = this;
+        vm.maxHealth = 100;
+        var health = $controller("healthController");
+
+        angular.extend(vm,health);
+
+    }])

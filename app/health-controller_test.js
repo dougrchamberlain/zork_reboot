@@ -154,18 +154,20 @@ describe("Health Controller Test", function () {
     }));
 
 
-    it("should attack if it's an enemy",inject(function(damageService) {
+    it("should attack player if it's an enemy",inject(function(damageService) {
 
         //TODO: create a base object to hand my controllers off of
-        var item = angular.extend({name: "jar"},$controller("enemyController"));
+        var monster = angular.extend({name: "Monster Mock"},$controller("enemyController"));
+        var player = angular.extend({name: "player"},$controller("playerController"));
 
-        item.lock();
+       monster.attack(player);
+        monster.attack(player);
+        monster.attack(player);
+        monster.attack(player);
+        $scope.$apply();
 
-        damageService.attackByAmount(item, 51);
-
-        var isOpen = item.open();
-
-        expect(isOpen).toBe(true);
+        console.log(player.getHealth());
+        expect(player.getHealth()).toBeLessThan(100);
     }));
 
 
