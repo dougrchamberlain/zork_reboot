@@ -4,24 +4,26 @@
 angular.module("myApp").controller("healthController", [function () {
     var vm = this;
 
-    var health = 100;
-
-
-    vm.getHealth = function(){
-        return health;
+    vm.health = {
+        current: 100,
+        max: 100
     }
 
 
-    vm.takeHit = function (a) {
-        health -= a || 10;
+    vm.takeDamage = function (a) {
+        vm.health.current  = vm.health.current - a;
+
+        if(vm.health.current <= 0){
+            console.log("enemy is dead");
+        }
     }
 
     vm.restore = function (a) {
-        health += a || 10;
+        vm.health.current += a || 10;
     }
 
     vm.isDead = function () {
-        return health < 1;
+        return vm.health.current <= 0;
     }
 }]).controller("containerController", ["$controller", function ($controller) {
 
@@ -61,41 +63,43 @@ angular.module("myApp").controller("healthController", [function () {
 
 
     vm.open = function () {
-        if (currentState == CLOSED  || ( currentState == LOCKED && vm.health.getHealth() <= 50 )) {
+        if (currentState == CLOSED) {
             currentState = OPEN;
         }
 
         return currentState == OPEN;
 
     }
-}]).factory("damageService",function(){
-    return {
-        attackByAmount : function(item, amount){
-            if(item.health){
-                item.health.takeHit(amount);
-                console.log("dealing " + amount + " damage to " + item);
-                console.log(item.name + " now has " + item.health.getHealth());
-            }
-
-        }
-    }
-
-}).controller("enemyController",["$controller",function($controller){
+}]).controller("enemyController",["$controller",function($controller){
     var vm = this;
 
-    vm.health = $controller("healthController");
+    vm = angular.extend(vm,$controller("healthController"));
 
-    vm.attack = function(gameObject){
-        if(gameObject.takeHit){
-            gameObject.takeHit(10);
-        }
-    }
+
 }])
     .controller("playerController",["$controller",function($controller){
         var vm = this;
-        vm.maxHealth = 100;
-        var health = $controller("healthController");
+        vm.score ={
+            current: 0
+        }
+        vm = angular.extend(vm,$controller("healthController"));
 
-        angular.extend(vm,health);
+        vm.attack = function(target, amount){
+            if(target.takeDamage){
+                target.takeDamage(amount);
+                vm.score.current += 10;
+                if(target.isDead()){
+                    vm.score.current +=100;
+                }
+            }
+        }
 
-    }])
+    }]).controller("powerUpController",function(){
+        var vm = this;
+
+        vm.restore = function(target,amount){
+            if(target.restore){
+                target.restore(amount);
+            }
+        }
+});

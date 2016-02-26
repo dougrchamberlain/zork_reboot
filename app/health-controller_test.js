@@ -3,11 +3,11 @@
  */
 describe("Health Controller Test", function () {
 
-    var $controller, _, $rootScope,$scope;
+    var $controller, _, $rootScope, $scope;
 
     beforeEach(function () {
-        module("myApp")
-        module("underscore")
+        module("myApp");
+        module("underscore");
     });
 
 
@@ -21,29 +21,8 @@ describe("Health Controller Test", function () {
 
     }));
 
-    it("should affect health if hit",function(){
-        var controller = $controller("healthController");
 
-        controller.takeHit(10);
-
-        expect(controller.getHealth()).toBe(90);
-    })
-
-
-    it("should affect health if hit and it's not a singleton",function(){
-        var controller = $controller("healthController");
-        var controller2 = $controller("healthController");
-
-        controller.takeHit(10);
-        controller2.takeHit(15);
-
-
-        expect(controller.getHealth()).toBe(90);
-        expect(controller2.getHealth()).toBe(85);
-    });
-
-
-    it("should open a container that is not locked",function(){
+    it("should open a container that is not locked", function () {
         var vm = $controller("containerController");
 
         vm.open();
@@ -51,7 +30,7 @@ describe("Health Controller Test", function () {
         expect(vm.getState()).toBe(0);
     });
 
-    it("should lock a container that is not locked",function(){
+    it("should lock a container that is not locked", function () {
         var vm = $controller("containerController");
 
         vm.close();
@@ -61,8 +40,7 @@ describe("Health Controller Test", function () {
     });
 
 
-
-    it("should not open a container that is locked",function(){
+    it("should not open a container that is locked", function () {
         var vm = $controller("containerController");
 
         vm.lock();
@@ -71,7 +49,7 @@ describe("Health Controller Test", function () {
         expect(vm.getState()).toBe(2);
     })
 
-    it("should close a container that is open",function(){
+    it("should close a container that is open", function () {
         var vm = $controller("containerController");
 
         vm.open();
@@ -80,7 +58,7 @@ describe("Health Controller Test", function () {
         expect(vm.getState()).toBe(1);
     })
 
-    it("should not close a container that is locked ",function(){
+    it("should not close a container that is locked ", function () {
         var vm = $controller("containerController");
 
         vm.lock();
@@ -90,7 +68,7 @@ describe("Health Controller Test", function () {
     });
 
 
-    it("should 3 items should vary in states",function() {
+    it("should 3 items should vary in states", function () {
 
         var items = [{container: null}, {container: null}, {container: null}];
 
@@ -111,66 +89,57 @@ describe("Health Controller Test", function () {
     });
 
 
-    it("should beat a container open",function() {
+    it("should attack player if it's an enemy", function () {
+        //TODO: create a base object to hand my controllers off of
+        var monster = $controller("enemyController");
+        var player = $controller("playerController");
 
-        var item = $controller("containerController");
-
-        item.lock();
-
-        item.health.takeHit(51);
-
-        var isOpen = item.open();
-
-        expect(isOpen).toBe(true);
+        player.attack(monster, 10);
+        console.log(monster.health.current);
+        expect(monster.health.current).toBeLessThan(100);
     });
 
-    it("should beat a container open but with the damageService",inject(function(damageService) {
 
+    it("should honor max health ", function () {
         //TODO: create a base object to hand my controllers off of
-        var item = angular.extend({name: "jar"},$controller("containerController"));
+        var monster = $controller("enemyController");
 
-        item.lock();
+        monster.health.max = 1000;
 
-        damageService.attackByAmount(item, 51);
+        expect(monster.health.max).toBe(1000);
+    });
 
-        var isOpen = item.open();
-
-        expect(isOpen).toBe(true);
-    }));
-
-
-    it("should beat a container open but with the damageService",inject(function(damageService) {
-
+    it("should restore health using a power up", function () {
         //TODO: create a base object to hand my controllers off of
-        var item = angular.extend({name: "jar"},$controller("containerController"));
+        var monster = $controller("enemyController");
+        var powerup = $controller("powerUpController");
+        monster.health.max = 1000;
+        monster.health.current = 10;
+        powerup.restore(monster, 10);
 
-        item.lock();
+        expect(monster.health.current).toBe(20);
+    });
 
-        damageService.attackByAmount(item, 51);
-
-        var isOpen = item.open();
-
-        expect(isOpen).toBe(true);
-    }));
-
-
-    it("should attack player if it's an enemy",inject(function(damageService) {
-
+    it("should restore health", function () {
         //TODO: create a base object to hand my controllers off of
-        var monster = angular.extend({name: "Monster Mock"},$controller("enemyController"));
-        var player = angular.extend({name: "player"},$controller("playerController"));
+        var monster = $controller("enemyController");
+        monster.health.max = 1000;
+        monster.health.current = 10;
+        monster.restore(10);
 
-       monster.attack(player);
-        monster.attack(player);
-        monster.attack(player);
-        monster.attack(player);
-        $scope.$apply();
+        expect(monster.health.current).toBe(20);
+    });
 
-        console.log(player.getHealth());
-        expect(player.getHealth()).toBeLessThan(100);
-    }));
+    it("should score for killing monster", function () {
+        //TODO: create a base object to hand my controllers off of
+        var monster = $controller("enemyController");
+        var player = $controller("playerController");
+        monster.health.max = 100;
+        monster.health.current = 100;
 
-
+        player.attack(monster, 100);
+        expect(player.score.current).toBe(110);
+    });
 
 
 })

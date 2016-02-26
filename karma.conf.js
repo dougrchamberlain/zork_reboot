@@ -18,6 +18,7 @@ module.exports = function (config) {
         frameworks: ['jasmine'],
 
         browsers: ['PhantomJS'],
+        reporters: ["dots"],
 
         plugins: [
             'karma-phantomjs-launcher',
