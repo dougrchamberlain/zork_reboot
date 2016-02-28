@@ -20,6 +20,7 @@ angular.module("myApp").controller("containerController", ["$controller", functi
     vm.close = function () {
         if (currentState !== CLOSED && currentState != LOCKED) {
             currentState = CLOSED;
+            console.log(vm.name + " is now closed");
         }
         return currentState == CLOSED;
     };
@@ -27,6 +28,7 @@ angular.module("myApp").controller("containerController", ["$controller", functi
     vm.lock = function () {
         if (currentState !== LOCKED) {
             currentState = LOCKED;
+            console.log(vm.name + " is now locked");
         }
         return currentState == LOCKED;
     }
@@ -34,6 +36,7 @@ angular.module("myApp").controller("containerController", ["$controller", functi
     vm.unlock = function () {
         if (currentState !== OPEN && currentState != CLOSED) {
             currentState = LOCKED - 1;
+            console.log(vm.name + " is now unlocked");
         }
         return currentState == CLOSED;
     }
@@ -42,9 +45,25 @@ angular.module("myApp").controller("containerController", ["$controller", functi
     vm.open = function () {
         if (currentState == CLOSED || (vm.health.current < 50)) {
             currentState = OPEN;
+            console.log(vm.name + " is now open");
         }
 
         return currentState == OPEN;
 
     }
+
+    vm.look = function (){
+
+        if (currentState == OPEN ){
+            console.log("You look in the " + vm.name);
+            listContents();
+        }
+    }
+
+    var listContents = function(){
+        angular.forEach(vm.inventory.items,function(item){
+            console.log(vm.name + " contains : " + item.name);
+        })
+    }
+
 }]);

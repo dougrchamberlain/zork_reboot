@@ -70,4 +70,12 @@ describe('appController', function () {
         expect(vendingMachine.inventory.items.length).toBe(4);
     });
 
+    it("should open the desk", function(){
+        var vm = createController("containerController");
+
+        vm.processCommand("open desk");
+
+        expect(vm.desk.getState()).toBe(0);
+    })
+
 });

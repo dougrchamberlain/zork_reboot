@@ -4,13 +4,13 @@
 angular.module("myApp").factory("inventoryService", ["_", function (_) {
     return {
         contains: function (item, inventory) {
-            return _.where(inventory, {name: item.name}).length > 0;
+            return _.where(inventory.items, {name: item.name}).length > 0;
         },
         findByName: function (name, inventory) {
-            return _.findWhere(inventory, {name: name});
+            return _.findWhere(inventory.items, {name: name});
         },
         take: function (item, inventory) {
-            inventory.push(item);
+            inventory.items.push(item);
         }
     }
 }]);

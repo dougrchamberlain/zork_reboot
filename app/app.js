@@ -21,36 +21,57 @@ angular.module("myApp", [
         controller: "appController",
         controllerAs: "vm"
     });
-}]).controller("appController", ["$scope", "$resource", "_","$controller", function ($scope, $resource, _,$controller) {
+}]).controller("appController", ["$scope", "$resource", "_", "$controller","inventoryService", function ($scope, $resource, _, $controller,inventoryService) {
     var vm = this;
 
 
-
-    vm.createVendingMachine = function(){
+    vm.createVendingMachine = function () {
         var vendingMachine = $controller("containerController");
         var soda = $controller("inventoryItemController");
         var chips = $controller("inventoryItemController");
         var key = $controller("inventoryItemController");
         var candy = $controller("inventoryItemController");
 
+        vendingMachine.name = "Vending Machine";
+        soda.name = "soda";
+        chips.name = "chips";
+        key.name = "key";
+        candy.name = "candy";
+
         vendingMachine.take(soda);
         vendingMachine.take(chips);
         vendingMachine.take(key);
         vendingMachine.take(candy);
+
+        vm.vendingMachine = vendingMachine;
         return vendingMachine;
     };
 
-    vm.createCouch = function(){
+    vm.createCouch = function () {
         var couch = $controller("containerController");
         var change = $controller("inventoryItemController");
+
+        couch.name = "couch";
+        couch.close();
+
+        change.name = "coin";
+
         couch.take(change);
+        vm.couch = couch;
         return couch;
     }
 
-    vm.createDesk = function(){
+    vm.createDesk = function () {
         var desk = $controller("containerController");
         var letter = $controller("inventoryItemController");
+
+        desk.name = "desk";
+        desk.close();
+
+        letter.name = "letter";
+
         desk.take(letter);
+        vm.desk = desk;
         return desk;
     }
 
@@ -62,17 +83,30 @@ angular.module("myApp", [
 
     };
 
-    vm.createPlayer("Doug");
-
     vm.processCommand = function (command) {
-      vm.player[command.split(' ')[0]];
+        var words = command.split(' ');
+        var obj = vm[words[1]];
+        var item = inventoryService.findByName(words[1],vm.desk.inventory);
+
     }
 
     vm.queueCommand = function (command, event) {
         if (event.keyCode == 13) {
             vm.status = [];
-            vm.processCommand(command.toLowerCase());
+
         }
     }
+
+    vm.createPlayer("Doug");
+    vm.createVendingMachine();
+    vm.createDesk();
+    vm.createCouch();
+
+    //happy path the damn game
+    vm.couch.look();
+    vm.couch.take();
+    vm.desk.look();
+    vm.vendingMachine.look();
+    vm.player.take(inventoryService.findByName("key",vm.vendingMachine.inventory));
 
 }]);

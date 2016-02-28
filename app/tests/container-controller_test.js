@@ -96,4 +96,33 @@ describe("Player tests: ",function() {
         expect(vm.getState()).toBe(0);
     });
 
+
+    it("should look at a container and list it's contents if it is opened", function () {
+        var container = $controller("containerController");
+        var letter = $controller("inventoryItemController");
+
+        container.name = "desk";
+        letter.name = "letter";
+        container.take(letter);
+        container.close();
+        container.open();
+        container.look();
+
+
+        expect(container.inventory.items.length).toBe(1);
+    });
+
+    it("should look at a container if it isn't open", function () {
+        var container = $controller("containerController");
+        var letter = $controller("inventoryItemController");
+
+        container.name = "desk";
+        letter.name = "letter";
+        container.take(letter);
+        container.close();
+        container.look();
+
+        expect(container.inventory.items.length).toBe(1);
+    });
+
 });
