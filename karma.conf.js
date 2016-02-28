@@ -1,6 +1,6 @@
 module.exports = function (config) {
+    console.log = function(){};
     config.set({
-        logLevel: "LOG_ERROR",
         files: [
             'bower_components/underscore/underscore.js',
             'bower_components/angular/angular.js',
@@ -9,8 +9,8 @@ module.exports = function (config) {
             'bower_components/angular-ui-router/release/angular-ui-router.js',
             'bower_components/angular-bootstrap/ui-bootstrap.js',
             'bower_components/angular-mocks/angular-mocks.js',
-            'app/*!(_test).js',
-            'app/*_test.js'
+            'app/**/*!(_test).js',
+            'app/**/*_test.js'
         ],
 
         autoWatch: true,
@@ -18,7 +18,7 @@ module.exports = function (config) {
         frameworks: ['jasmine'],
 
         browsers: ['PhantomJS'],
-        reporters: ["dots"],
+        reporters: ["progress"],
 
         plugins: [
             'karma-phantomjs-launcher',
@@ -31,6 +31,10 @@ module.exports = function (config) {
         junitReporter: {
             outputFile: 'test_out/unit.xml',
             suite: 'unit'
+        },
+
+        client:{
+            captureConsole: true
         }
 
     });

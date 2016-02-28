@@ -7,56 +7,67 @@ describe('appController', function () {
         module("myApp");
 
 
-    })
+    });
 
-    var $rootScope, $scope, $controller, createController, _, mapService, gameService;
+    var $rootScope, $scope, $controller, createController, _, mapService;
 
-    beforeEach(inject(function (_$rootScope_, _$controller_, ___, _mapService_, _gameService_) {
+    beforeEach(inject(function (_$rootScope_, _$controller_, ___, _mapService_) {
         // The injector unwraps the underscores (_) from around the parameter names when matching
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         $controller = _$controller_;
         _ = ___;
         mapService = _mapService_;
-        gameService = _gameService_;
 
-        createController = function(){
-            return $controller("appController",{$scope: $scope, gameService: gameService})
+        createController = function () {
+            return $controller("appController", {$scope: $scope})
         }
 
     }));
 
-    fdescribe("app tests", function () {
-
-        it("should create a new player instance", function () {
-            var vm = createController();
-            var player = vm.player;
+    it("should create a new player instance", function () {
+        var vm = createController();
+        var player = vm.player;
 
 
-            expect(player.name).toBe("Doug");
-            expect(player.health.current).toBe(100);
-        });
+        expect(player.name).toBe("Doug");
+        expect(player.health.current).toBe(100);
+    });
 
-        it("should check players starting health and score", function () {
-            var vm = createController();
-            var player = vm.player;
+    it("should check players starting health and score", function () {
+        var vm = createController();
+        var player = vm.player;
 
 
-            expect(player.health.current).toBe(100);
-            expect(player.score.current).toBe(0);
-        });
+        expect(player.health.current).toBe(100);
+        expect(player.score.current).toBe(0);
+    });
 
-        it("should attack an enemy and get a score!", function () {
-            var vm = createController();
-            var enemy = $controller("enemyController");
-            var player = vm.player;
+    it("should create a desk with a drawer", function () {
+        var vm = createController("containerController");
 
-            player.attack(enemy,10);
+        var desk = vm.createDesk();
 
-            expect(enemy.health.current.toBe)
-            expect(player.score.current).toBe(10);
-        });
+        expect(desk.inventory.items.length).toBe(1);
+
     });
 
 
-})
+    it("should create a couch with change in it", function () {
+        var vm = createController("containerController");
+
+        var couch = vm.createCouch();
+
+        expect(couch.inventory.items.length).toBe(1);
+    });
+
+
+    it("should create a vending machine with snacks in it", function () {
+        var vm = createController("containerController");
+
+        var vendingMachine = vm.createVendingMachine();
+
+        expect(vendingMachine.inventory.items.length).toBe(4);
+    });
+
+});

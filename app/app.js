@@ -21,15 +21,50 @@ angular.module("myApp", [
         controller: "appController",
         controllerAs: "vm"
     });
-}]).controller("appController", ["$scope", "$resource", "_","gameService", function ($scope, $resource, _, gameService) {
+}]).controller("appController", ["$scope", "$resource", "_","$controller", function ($scope, $resource, _,$controller) {
     var vm = this;
 
-    vm.player = gameService.createPlayer("Doug");
 
 
+    vm.createVendingMachine = function(){
+        var vendingMachine = $controller("containerController");
+        var soda = $controller("inventoryItemController");
+        var chips = $controller("inventoryItemController");
+        var key = $controller("inventoryItemController");
+        var candy = $controller("inventoryItemController");
+
+        vendingMachine.take(soda);
+        vendingMachine.take(chips);
+        vendingMachine.take(key);
+        vendingMachine.take(candy);
+        return vendingMachine;
+    };
+
+    vm.createCouch = function(){
+        var couch = $controller("containerController");
+        var change = $controller("inventoryItemController");
+        couch.take(change);
+        return couch;
+    }
+
+    vm.createDesk = function(){
+        var desk = $controller("containerController");
+        var letter = $controller("inventoryItemController");
+        desk.take(letter);
+        return desk;
+    }
+
+    vm.createPlayer = function (name) {
+        var player = $controller("playerController");
+        player.name = name;
+        vm.player = player;
+        return player;
+
+    };
+
+    vm.createPlayer("Doug");
 
     vm.processCommand = function (command) {
-
       vm.player[command.split(' ')[0]];
     }
 
@@ -38,19 +73,6 @@ angular.module("myApp", [
             vm.status = [];
             vm.processCommand(command.toLowerCase());
         }
-
-
     }
 
-
-}]).factory("gameService", ["_", "$controller", function (_, $controller) {
-    return {
-        createPlayer: function (name) {
-            var player = $controller("playerController");
-            player.name = name;
-            return player;
-
-        }
-    }
-}])
-;
+}]);
