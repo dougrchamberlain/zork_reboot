@@ -11,6 +11,9 @@ angular.module("myApp").factory("inventoryService", ["_", function (_) {
         },
         take: function (item, inventory) {
             inventory.items.push(item);
+        },
+        add: function(item,inventory){
+            inventory.items.push(item);
         }
     }
 }]);

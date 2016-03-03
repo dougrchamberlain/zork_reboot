@@ -26,30 +26,30 @@ describe("Health Controller Test", function () {
         //TODO: create a base object to hand my controllers off of
         var monster = $controller("enemyController");
 
-        monster.health.max = 1000;
+        monster.healthController.health.max = 1000;
 
-        expect(monster.health.max).toBe(1000);
+        expect(monster.healthController.health.max).toBe(1000);
     });
 
     it("should restore health using a power up", function () {
         //TODO: create a base object to hand my controllers off of
         var monster = $controller("enemyController");
         var powerup = $controller("powerUpController");
-        monster.health.max = 1000;
-        monster.health.current = 10;
+        monster.healthController.health.max = 1000;
+        monster.healthController.health.current = 10;
         powerup.restore(monster, 10);
 
-        expect(monster.health.current).toBe(20);
+        expect(monster.healthController.health.current).toBe(20);
     });
 
     it("should restore health", function () {
         //TODO: create a base object to hand my controllers off of
         var monster = $controller("enemyController");
-        monster.health.max = 1000;
-        monster.health.current = 10;
-        monster.restore(10);
+        monster.healthController.health.max = 1000;
+        monster.healthController.health.current = 10;
+        monster.healthController.restore(10);
 
-        expect(monster.health.current).toBe(20);
+        expect(monster.healthController.health.current).toBe(20);
     });
 
 });

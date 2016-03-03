@@ -1,14 +1,14 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("playerController", ["$controller", function ($controller) {
+angular.module("myApp").controller("playerController", ["$controller","$rootScope", function ($controller,$rootScope) {
     var vm = this;
     vm.score = {
         current: 0
     }
 
     //extend player with these controllers
-    vm = angular.extend(vm, $controller("healthController"));
+    vm.healthController = $controller("healthController");
     vm = angular.extend(vm, $controller("inventoryController"));
 
 
@@ -17,8 +17,8 @@ angular.module("myApp").controller("playerController", ["$controller", function 
     };
 
     vm.attack = function (target, amount) {
-        if (target.takeDamage) {
-            target.takeDamage(amount);
+        if (target.healthController.takeDamage) {
+            target.healthController.takeDamage(amount);
             vm.score.current += 10;
             if (target.isDead && target.isDead()) {
                 dead(target);
@@ -26,11 +26,12 @@ angular.module("myApp").controller("playerController", ["$controller", function 
         }
     };
 
+
     vm.move = function (direction) {
 
-    }
+    };
 
     vm.isDead= function(){
-        return vm.health.current <= 0;
+        return vm.healthController.health.current <= 0;
     }
 }]);

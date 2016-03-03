@@ -24,13 +24,17 @@ angular.module("myApp", [
 }]).controller("appController", ["$scope", "$resource", "_", "$controller","inventoryService", function ($scope, $resource, _, $controller,inventoryService) {
     var vm = this;
 
+    $scope.$on("inventory.add", function(event, data){
+        console.log(data.item.name + " added.");
+    });
+
 
     vm.createVendingMachine = function () {
-        var vendingMachine = $controller("containerController");
-        var soda = $controller("inventoryItemController");
-        var chips = $controller("inventoryItemController");
-        var key = $controller("inventoryItemController");
-        var candy = $controller("inventoryItemController");
+        var vendingMachine = $controller("inventoryController");
+        var soda = $controller("inventoryItemController",{me: vendingMachine});
+        var chips = $controller("inventoryItemController",{me: vendingMachine});
+        var key = $controller("inventoryItemController",{me: vendingMachine});
+        var candy = $controller("inventoryItemController",{me: vendingMachine});
 
         vendingMachine.name = "Vending Machine";
         soda.name = "soda";
@@ -38,17 +42,18 @@ angular.module("myApp", [
         key.name = "key";
         candy.name = "candy";
 
-        vendingMachine.take(soda);
-        vendingMachine.take(chips);
-        vendingMachine.take(key);
-        vendingMachine.take(candy);
+        vendingMachine.add(soda);
+        vendingMachine.add(chips);
+        vendingMachine.add(key);
+        vendingMachine.add(candy);
+        vendingMachine.canTake = false;
 
         vm.vendingMachine = vendingMachine;
         return vendingMachine;
     };
 
     vm.createCouch = function () {
-        var couch = $controller("containerController");
+        var couch = $controller("inventoryController");
         var change = $controller("inventoryItemController");
 
         couch.name = "couch";
@@ -56,13 +61,13 @@ angular.module("myApp", [
 
         change.name = "coin";
 
-        couch.take(change);
+        couch.add(change);
         vm.couch = couch;
         return couch;
     }
 
     vm.createDesk = function () {
-        var desk = $controller("containerController");
+        var desk = $controller("inventoryController");
         var letter = $controller("inventoryItemController");
 
         desk.name = "desk";
@@ -70,13 +75,19 @@ angular.module("myApp", [
 
         letter.name = "letter";
 
-        desk.take(letter);
+        desk.add(letter);
         vm.desk = desk;
         return desk;
     }
 
     vm.createPlayer = function (name) {
         var player = $controller("playerController");
+        var letter = $controller("inventoryItemController");
+        letter.name = "game instructions";
+
+
+        player.add(letter);
+
         player.name = name;
         vm.player = player;
         return player;
@@ -97,16 +108,22 @@ angular.module("myApp", [
         }
     }
 
+
+
     vm.createPlayer("Doug");
     vm.createVendingMachine();
     vm.createDesk();
     vm.createCouch();
 
-    //happy path the damn game
-    vm.couch.look();
-    vm.couch.take();
-    vm.desk.look();
-    vm.vendingMachine.look();
-    vm.player.take(inventoryService.findByName("key",vm.vendingMachine.inventory));
+    vm.room = $controller("inventoryController");
+    vm.room.name  = "Clock Room";
+
+    vm.room.add(vm.vendingMachine);
+    vm.room.add(vm.couch);
+    vm.room.add(vm.desk);
+    vm.room.add(vm.player);
+
+
+
 
 }]);

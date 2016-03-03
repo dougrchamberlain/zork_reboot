@@ -27,11 +27,11 @@ describe('appController', function () {
 
     it("should create a new player instance", function () {
         var vm = createController();
-        var player = vm.player;
+        var player = vm.createPlayer("Doug");
 
 
         expect(player.name).toBe("Doug");
-        expect(player.health.current).toBe(100);
+        expect(player.healthController.health.current).toBe(100);
     });
 
     it("should check players starting health and score", function () {
@@ -39,12 +39,12 @@ describe('appController', function () {
         var player = vm.player;
 
 
-        expect(player.health.current).toBe(100);
+        expect(player.healthController.health.current).toBe(100);
         expect(player.score.current).toBe(0);
     });
 
     it("should create a desk with a drawer", function () {
-        var vm = createController("containerController");
+        var vm = createController("inventoryController");
 
         var desk = vm.createDesk();
 
@@ -54,7 +54,7 @@ describe('appController', function () {
 
 
     it("should create a couch with change in it", function () {
-        var vm = createController("containerController");
+        var vm = createController("inventoryController");
 
         var couch = vm.createCouch();
 
@@ -63,19 +63,13 @@ describe('appController', function () {
 
 
     it("should create a vending machine with snacks in it", function () {
-        var vm = createController("containerController");
+        var vm = createController("inventoryController");
 
         var vendingMachine = vm.createVendingMachine();
 
         expect(vendingMachine.inventory.items.length).toBe(4);
     });
 
-    it("should open the desk", function(){
-        var vm = createController("containerController");
 
-        vm.processCommand("open desk");
-
-        expect(vm.desk.getState()).toBe(0);
-    })
 
 });

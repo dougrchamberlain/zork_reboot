@@ -3,52 +3,47 @@
 <!--</ul>-->
 <div class="container-fluid">
     <!-- Modal -->
-<pre>{{vm.player.health.current}}</pre>
-<i ng-class="{'glyphicon-heart' : vm.player.health.current >= 20 * $index, 'glyphicon-heart-empty' : vm.player.health.current < 20 * $index}" class="glyphicon" ng-repeat="heart in [1,2,3,4,5]"></i>
-    <button ng-click="vm.player.attack(vm.player,50)"> hit yourself </button>
-    <div class="row">
-        <div class="col-xs-8">
-            <ul>
-                <li ng-repeat="status in vm.status track by $index">{{status}}</li>
-            </ul>
-        </div>
-        <div class="col-xs-4">
-            <h4>Inventory:</h4>
-            <p ng-repeat="item in vm.player.inventory track by $index ">{{item.name}}</p>
-            <h4>Monsters:</h4>
-            <p ng-show="vm.location.lit || vm.hasLitLamp()" ng-repeat="monster in vm.location.monsters">{{monster.name}} life: {{monster.life}}</p>
-        </div>
-    </div>
-    <div class="row">
 
-        <footer>
-            <div class="navbar navbar-fixed-bottom">
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-xs-12">
-            <h4>exits:<span ng-show="vm.location.lit || vm.hasLitLamp()" ng-repeat="(key,value) in vm.possibleExits(vm.location.exits)">{{key}}&nbsp;</span>
-            </h4>
-            <span ng-hide="vm.location.lit || vm.hasLitLamp()">**Can't see the exits**</span></br>
-            <img ng-show="vm.location.lit || vm.hasLitLamp()" ng-src="dungeon/{{vm.location.image}}" height="25%" width="25%"/>
 
-            <h4>Current Location: {{vm.location.name}}</h4>
-            <p ng-show="vm.location.lit || vm.hasLitLamp()">{{vm.location.description}}</p>
-            <p ng-hide="vm.location.lit || vm.hasLitLamp()">It is pitch black you are likely to be eaten by a grue</p>
 
-            <hr/>
-        </div>
-    </div>
-</div>
-                <div class="form-group">
-                    <input class="form-control"
+Inventory:
+<ul>
+    <li ng-repeat="item in vm.player.inventory.items">
+        <button ng-show="!item.item" ng-click="vm.player.take(item,vm.player);">Take {{ item.name}}</button>
+        <button ng-click="vm.player.open(item);">Open {{ item.name}}</button>
+        <button ng-click="item.look();">Look {{ item.name}}</button>
+        <button ng-click="vm.room.take(item,vm.player);">Drop {{ item.name}}</button>
+    </li>
+</ul>
 
-                           type="text" ng-model="vm.command"
-                           ng-keypress="vm.queueCommand(vm.command,$event)"/>
-                </div>
 
+Room:
+<ul>
+    <li ng-repeat="item in vm.room.inventory.items">
+        <button ng-show="item.item" ng-click="vm.player.take(item,vm.player);">Take {{ item.name}}</button>
+        <button ng-click="vm.player.open(item);">Open {{ item.name}}</button>
+        <button ng-click="item.look();">Look {{ item.name}}</button>
+        <button ng-click="vm.room.take(item,vm.player);">Drop {{ item.name}}</button>
+        <div class="row">
+            <div ng-show="item.getState() == 0">
+                <button ng-show="item.getState() != 1" ng-click="item.close();">close {{ item.name }}</button>
+                <button ng-show="item.getState() == 1" ng-click="item.lock();">lock {{item.name}}</button>
+                <button ng-show="item.getState() == 2" ng-click="item.unlock();">unlock {{item.name}}</button>
+                <ul>
+                    <li ng-repeat="sub in item.inventory.items">
+                        <button ng-click ="sub.look()">{{ sub.name}}</button>
+                        <button ng-show="sub.item" ng-click="vm.player.take(sub,item);">Take {{ sub.name}}</button>
+                        <button  ng-click="vm.player.open(sub);">Open {{ sub.name}}</button>
+
+                    </li>
+                </ul>
             </div>
-        </footer>
-    </div>
+        </div>
+    </li>
+</ul>
+
+
+
 
 </div>
 

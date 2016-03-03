@@ -22,7 +22,7 @@ describe("Player tests: ", function () {
         var player = $controller("playerController");
 
         player.attack(monster, 10);
-        expect(monster.health.current).toBeLessThan(100);
+        expect(monster.healthController.health.current).toBeLessThan(100);
     });
 
     it("should score for killing monster", function () {
@@ -31,8 +31,8 @@ describe("Player tests: ", function () {
         var player = $controller("playerController");
 
         monster.name = "Mock Monster";
-        monster.health.max = 100;
-        monster.health.current = 100;
+        monster.healthController.health.max = 100;
+        monster.healthController.health.current = 100;
 
         player.attack(monster, 100);
         expect(player.score.current).toBe(110);
@@ -45,7 +45,7 @@ describe("Player tests: ", function () {
 
         player.attack(enemy, 10);
 
-        expect(enemy.health.current.toBe);
+        expect(enemy.healthController.health.current.toBe);
         expect(player.score.current).toBe(10);
     });
 

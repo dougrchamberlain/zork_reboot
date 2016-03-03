@@ -22,7 +22,7 @@ describe("Enemy tests: ",function() {
 
         enemy.attack(player,10);
 
-        expect(player.health.current).toBe(90);
+        expect(player.healthController.health.current).toBe(90);
     });
 
 
@@ -32,7 +32,7 @@ describe("Enemy tests: ",function() {
 
         enemy.attack(player,0);
 
-        expect(player.health.current).toBe(100);
+        expect(player.healthController.health.current).toBe(100);
     });
 
 
