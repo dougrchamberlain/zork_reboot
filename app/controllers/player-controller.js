@@ -1,15 +1,17 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("playerController", ["$controller","$rootScope", function ($controller,$rootScope) {
+angular.module("myApp").controller("playerController", ["$controller","$rootScope","me", function ($controller,me) {
     var vm = this;
     vm.score = {
         current: 0
-    }
+    };
+
+    vm.me = me;
 
     //extend player with these controllers
-    vm.healthController = $controller("healthController");
-    vm = angular.extend(vm, $controller("inventoryController"));
+    vm.healthController = $controller("healthController",{me: vm.me});
+    vm = angular.extend(vm, $controller("inventoryController",{me: vm.me}));
 
 
     var dead = function () {

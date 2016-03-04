@@ -3,7 +3,7 @@
  */
 describe("Health Controller Test", function () {
 "use strict";
-    var $controller, _, $rootScope, $scope;
+    var G, _, $rootScope, $scope;
 
     beforeEach(function () {
         module("myApp");
@@ -11,11 +11,11 @@ describe("Health Controller Test", function () {
     });
 
 
-    beforeEach(inject(function (___, _$controller_, _$rootScope_) {
+    beforeEach(inject(function (___, _gameService_, _$rootScope_) {
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
 
-        $controller = _$controller_;
+        G = _gameService_;
 
         _ = ___;
 
@@ -24,7 +24,7 @@ describe("Health Controller Test", function () {
 
     it("should honor max health ", function () {
         //TODO: create a base object to hand my controllers off of
-        var monster = $controller("enemyController");
+        var monster = G.createGameObject("enemy","enemyController");
 
         monster.healthController.health.max = 1000;
 
@@ -33,8 +33,8 @@ describe("Health Controller Test", function () {
 
     it("should restore health using a power up", function () {
         //TODO: create a base object to hand my controllers off of
-        var monster = $controller("enemyController");
-        var powerup = $controller("powerUpController");
+        var monster = G.createGameObject("enemy","enemyController");
+        var powerup = G.createGameObject("powerUp","powerUpController");
         monster.healthController.health.max = 1000;
         monster.healthController.health.current = 10;
         powerup.restore(monster, 10);
@@ -44,7 +44,7 @@ describe("Health Controller Test", function () {
 
     it("should restore health", function () {
         //TODO: create a base object to hand my controllers off of
-        var monster = $controller("enemyController");
+        var monster = G.createGameObject("enemy","enemyController");
         monster.healthController.health.max = 1000;
         monster.healthController.health.current = 10;
         monster.healthController.restore(10);

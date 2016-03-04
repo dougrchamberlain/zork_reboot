@@ -3,7 +3,7 @@
  */
 describe("Player tests: ", function () {
     "use strict";
-    var $controller, _;
+    var G, _;
 
 
     beforeEach(function () {
@@ -11,15 +11,15 @@ describe("Player tests: ", function () {
         module("myApp");
     });
 
-    beforeEach(inject(function (_$controller_, ___) {
-        $controller = _$controller_;
+    beforeEach(inject(function (_gameService_, ___) {
+        G = _gameService_;
         _ = ___;
     }));
 
     it("should attack player if it's an enemy", function () {
         //TODO: create a base object to hand my controllers off of
-        var monster = $controller("enemyController");
-        var player = $controller("playerController");
+        var monster = G.createGameObject("enemy","enemyController");
+        var player =  G.createGameObject("player","playerController");
 
         player.attack(monster, 10);
         expect(monster.healthController.health.current).toBeLessThan(100);
@@ -27,10 +27,9 @@ describe("Player tests: ", function () {
 
     it("should score for killing monster", function () {
         //TODO: create a base object to hand my controllers off of
-        var monster = $controller("enemyController");
-        var player = $controller("playerController");
+        var monster = G.createGameObject("enemy","enemyController");
+        var player = G.createGameObject("player","playerController");
 
-        monster.name = "Mock Monster";
         monster.healthController.health.max = 100;
         monster.healthController.health.current = 100;
 
@@ -40,8 +39,8 @@ describe("Player tests: ", function () {
 
 
     it("should attack an enemy and get a score!", function () {
-        var enemy = $controller("enemyController");
-        var player = $controller("playerController");
+        var enemy = G.createGameObject("enemy","enemyController");
+        var player =  G.createGameObject("player","playerController");
 
         player.attack(enemy, 10);
 

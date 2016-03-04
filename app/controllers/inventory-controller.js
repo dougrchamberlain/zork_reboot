@@ -1,9 +1,10 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("inventoryController", ["inventoryService", "$controller","$rootScope", function (inventoryService, $controller,$rootScope) {
+angular.module("myApp").controller("inventoryController", ["inventoryService", "$controller","$rootScope","me", function (inventoryService, $controller,$rootScope,me) {
     var vm = this;
 
+    vm.me = me;
 
     vm.healthController = $controller("healthController");
 
@@ -27,13 +28,12 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
     var currentState = OPEN;
 
     vm.add = function (item) {
-        $rootScope.$broadcast("inventory.add",{item: item});
+        $rootScope.$broadcast("inventory.add",{item: vm.me});
         inventoryService.add(item, vm.inventory);
     };
 
-
-    vm.take = function (target, source) {
-        if (target && target.item.canTake) {
+    vm.take = function (target,source) {
+        if (target && target.item) {
             if (source) {
                 var index = _.findIndex(source.inventory.items, function (i) {
                     return i.name == target.name
