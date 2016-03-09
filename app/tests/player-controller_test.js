@@ -1,7 +1,7 @@
 /**
  * Created by doug on 2/27/2016.
  */
-fdescribe("Player tests: ", function () {
+describe("Player tests: ", function () {
     "use strict";
     var G, _,$rootScope,$scope;
 
@@ -53,16 +53,17 @@ fdescribe("Player tests: ", function () {
     it("should call take using a string", function () {
         var player =  G.createGameObject("player","playerController");
         var key =  G.createGameObject("key","inventoryItemController");
-        var jar = G.createGameObject("jar","inventoryController");
+        var room = G.createGameObject("room",["roomController","inventoryController"]);
 
-        jar.add(key);
+        player.currentRoom = room;
 
-        player["take"]("key","jar");
+        room.add(key);
+
+        player["take"]("key");
 
 
 
         expect(player.inventory.items.length).toBe(1);
-        expect(G.getGameObjects("player").inventory.contains("key"));
     });
 
     it("should call use using a string and open the door", function () {
@@ -72,6 +73,8 @@ fdescribe("Player tests: ", function () {
         var player =  G.createGameObject("player","playerController");
         var key =  G.createGameObject("key","inventoryItemController");
         var door = G.createGameObject("door","doorController");
+
+
 
         player.add(key);
         door.opensWith(key);
@@ -151,8 +154,8 @@ fdescribe("Player tests: ", function () {
         room1.setExits("north",room2);
         room2.add(bell);
         //player.move("north");
-        player.take("bell", "bell room");
-        expect(player.inventory.contains(bell)).toBe(false);
+        player.take("bell");
+        expect(player.inventory.contains("bell")).toBe(false);
 
 
     });

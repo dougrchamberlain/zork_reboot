@@ -12,7 +12,7 @@ describe("inventory: ", function () {
     }));
     it("should not take non-inventory items", function () {
         //TODO: create a base object to hand my controllers off of
-        var room = G.createGameObject("clock room","inventoryController");
+        var room = G.createGameObject("clock room",["roomController","inventoryController"]);
         var monster =  G.createGameObject("monster","enemyController");
         var player =  G.createGameObject("player","playerController");
         monster.healthController.health.max = 100;
@@ -20,20 +20,26 @@ describe("inventory: ", function () {
 
         room.add(monster);
 
-        player.take(monster,room);
-        expect(player.inventory.contains(monster)).toBe(false);
+        player.currentRoom = room;
+
+        player.take("monster");
+        expect(player.inventory.contains("monster")).toBe(false);
         expect(player.inventory.items.length).toBe(0);
     });
 
     it("should take item that can be taken", function () {
         //TODO: create a base object to hand my controllers off of
-        var powerUp =   G.createGameObject("health","powerUpController");
+        var powerUp =   G.createGameObject("health",["powerUpController","inventoryItemController"]);
         var player =  G.createGameObject("player","playerController");
 
+        var room = G.createGameObject("room",["roomController","inventoryController"]);
 
-        player.take(powerUp, player);
-        expect(player.inventory.contains(powerUp)).toBe(true);
-        expect(player.inventory.items.length).toBe(1);
+        player.currentRoom = room;
+
+        room.add(powerUp);
+
+        player.take("health");
+        expect(player.inventory.contains("health")).toBe(true);
     });
 
     it("should open a container that is not locked", function () {
@@ -117,44 +123,19 @@ describe("inventory: ", function () {
     });
 
 
-    it("should look at a container and list it's contents if it is opened", function () {
-        var container = G.createGameObject("inventory","inventoryController");
-        var letter =  G.createGameObject("letter","inventoryItemController");
-
-        container.name = "desk";
-        letter.name = "letter";
-        container.take(letter);
-        container.close();
-        container.open();
-        container.look();
-
-
-        expect(container.inventory.items.length).toBe(1);
-    });
-
-    it("should look at a container if it isn't open", function () {
-        var container = G.createGameObject("inventory","inventoryController");
-        var letter =  G.createGameObject("letter","inventoryItemController");
-
-        container.name = "desk";
-        letter.name = "letter";
-        container.take(letter);
-        container.close();
-        container.look();
-
-        expect(container.inventory.items.length).toBe(1);
-    });
-
-
     it("should take item from source and remove it from source", function () {
         var player =  G.createGameObject("player","playerController");
         var jar = G.createGameObject("jar","inventoryController");
         var beans =  G.createGameObject("beans","inventoryItemController");
 
+        var room = G.createGameObject("room",["roomController","inventoryController"]);
+
+        player.currentRoom = room;
+
         beans.name = "beans";
 
         jar.add(beans);
-        player.take(beans,jar);
+        player.take("beans","jar");
 
 
         expect(player.inventory.items.length).toBe(1);

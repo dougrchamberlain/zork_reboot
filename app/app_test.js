@@ -28,7 +28,7 @@ describe('appController', function () {
 
     it("should create a new player instance", function () {
         var vm = createController();
-        var player = vm.createPlayer("Doug");
+        var player = vm.player;
 
 
         expect(player.name).toBe("Doug");
@@ -38,7 +38,6 @@ describe('appController', function () {
     it("should check players starting health and score", function () {
         var vm = createController();
 
-        vm.createPlayer("Doug");
         var player = vm.player;
 
 
@@ -49,9 +48,8 @@ describe('appController', function () {
     it("should create a desk with a drawer", function () {
         var vm = createController();
 
-        var desk = vm.createDesk();
 
-        expect(desk.inventory.items.length).toBe(1);
+        expect(vm.desk.inventory.items.length).toBe(1);
 
     });
 
@@ -59,7 +57,7 @@ describe('appController', function () {
     it("should create a couch with change in it", function () {
         var vm = createController();
 
-        var couch = vm.createCouch();
+        var couch = vm.couch;
 
         expect(couch.inventory.items.length).toBe(1);
     });
@@ -68,7 +66,7 @@ describe('appController', function () {
     it("should create a vending machine with snacks in it", function () {
         var vm = createController();
 
-        var vendingMachine = vm.createVendingMachine();
+        var vendingMachine = vm.vendingMachine;
 
         expect(vendingMachine.inventory.items.length).toBe(4);
     });

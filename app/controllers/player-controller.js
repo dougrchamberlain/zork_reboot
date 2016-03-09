@@ -1,7 +1,7 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("playerController", ["$controller","$rootScope","me","gameService", function ($controller,$rootScope,me,G) {
+angular.module("myApp").controller("playerController", ["$controller", "$rootScope", "me", "gameService", function ($controller, $rootScope, me, G) {
     var vm = this;
     vm.score = {
         current: 0
@@ -12,8 +12,8 @@ angular.module("myApp").controller("playerController", ["$controller","$rootScop
 
 
     //extend player with these controllers
-    vm.healthController = $controller("healthController",{me: vm.me});
-    vm = angular.extend(vm, $controller("inventoryController",{me: vm.me}));
+    vm.healthController = $controller("healthController", {me: vm.me});
+    vm = angular.extend(vm, $controller("inventoryController", {me: vm.me}));
 
 
     var dead = function () {
@@ -30,24 +30,23 @@ angular.module("myApp").controller("playerController", ["$controller","$rootScop
         }
     };
 
-    vm.use = function(item,target){
+    vm.use = function (item, target) {
         item = G.getGameObjects(item);
         target = G.getGameObjects(target);
-        if(target && target.use){
+        if (target && target.use) {
             target.use(item);
-            $rootScope.$broadcast("item.action",{item: item, target: target});
+            $rootScope.$broadcast("item.action", {item: item, target: target});
         }
-        else{
+        else {
             item.use();
-            $rootScope.$broadcast("item.action",{item: {name: "You"}, target: target});
+            $rootScope.$broadcast("item.action", {item: {name: "You"}, target: target});
         }
     };
 
-    vm.look = function (item) {
-        item = G.getGameObjects(item);
-            console.log("You look in the " + item.name);
-
-    };
+    vm.look = function () {
+        console.log(vm.me.currentRoom.name + ": " + vm.me.currentRoom.description);
+        console.log("here you see a " + _.pluck(vm.me.currentRoom.inventory.items, "name").join(",") + ".");
+    }
 
     var listContents = function (container) {
         container = G.getGameObjects(container);
@@ -57,113 +56,141 @@ angular.module("myApp").controller("playerController", ["$controller","$rootScop
     }
 
 
-
     vm.move = function (direction) {
-           vm.me.currentRoom = vm.me.currentRoom.move(direction);
+        vm.me.currentRoom = vm.me.currentRoom.move(direction);
         return vm.me.currentRoom;
     };
 
-    ["poop","pee","piss","shit","vomit","crap"].forEach(function(gross){
-        vm[gross] = function(){
+    ["poop", "pee", "piss", "shit", "vomit", "crap"].forEach(function (gross) {
+        vm[gross] = function () {
             console.log("You " + gross + ". Feel better?");
             vm.me.currentRoom.add({name: gross});
             vm.me.currentRoom.look();
         }
-    })
+    });
 
+    vm.take = function (item,source) {
+        item =  G.getGameObjects(item);
+        if(_.contains(item.controllers,"inventoryItemController")){
+        source = G.getGameObjects(source) || vm.me.currentRoom;
 
+        if (!item) {
+            angular.forEach(source.inventory.items, function (invItem) {
+                vm.me.add(invItem);
+                vm.me.remove(invItem);
+            });
+        }
+        else if (item && source.me.inventory.contains(item.name)) {
+            vm.me.add(item);
+            source.remove(item);
+            console.log(vm.me.name + " takes the " + item.name);
+        }
+        else if (!source.inventory.contains(item.name)) {
+            console.log("There isn't any " + item.name + " to take.");
+        }}
+        else{
+            console.log("You can't take the " + item.name);
+        }
 
-    vm.drop = function(item){
-        console.log(item + " dropped");
-        vm.me.currentRoom.take(item,vm.me.name);
     }
 
-    vm.isDead= function(){
+    vm.i = function(){
+        angular.forEach(vm.me.inventory.items,function(i){
+            console.log(i.name);
+        })
+    }
+
+    vm.drop = function (item) {
+        item = G.getGameObjects(item);
+        vm.me.currentRoom.add(item);
+        vm.me.remove(item);
+
+    };
+
+    vm.isDead = function () {
         return vm.healthController.health.current <= 0;
     }
-}]).controller("doorController",["me","$rootScope", function(me,$rootScope){
+}]).controller("doorController", ["me", "$rootScope", function (me, $rootScope) {
     var vm = this;
-        vm.me = me;
+    vm.me = me;
 
-        var states = [
-            "open",
-            "closed",
-            "locked"
-        ]
+    var states = [
+        "open",
+        "closed",
+        "locked"
+    ]
 
-        var state = 0;
-        var opensWith = [];
-
+    var state = 0;
+    var opensWith = [];
 
 
     return {
-        opensWith: function(item){
+        opensWith: function (item) {
             opensWith.push(item);
             return me;
         },
-        use: function(item){
-            if(opensWith.length > 0){
-                state = 0 ;
+        use: function (item) {
+            if (opensWith.length > 0) {
+                state = 0;
             }
         },
-        getState: function(){
-           return states[state];
+        getState: function () {
+            return states[state];
         }
     }
-}]).controller("bellController",["me","$rootScope","gameService", function(me, $rootScope,G){
+}]).controller("bellController", ["me", "$rootScope", "gameService", function (me, $rootScope, G) {
     var vm = this;
     var ringCount = 0;
 
     var player = G.getGameObjects("player");
 
 
-    $rootScope.$on("item.action",function(event,data){
+    $rootScope.$on("item.action", function (event, data) {
         console.log("You ring the bell.");
         player.score.current += 100;
         console.log("current score " + player.score.current);
 
     });
 
-    vm.ringCount = function(){
+    vm.ringCount = function () {
         return ringCount;
     };
 
-    vm.use = function(){
+    vm.use = function () {
         ringCount++;
     }
 
 
-
-}]).controller("roomController",["me","$scope", function(me,$scope){
+}]).controller("roomController", ["me", "$scope", function (me, $scope) {
     var vm = this;
     vm.me = me;
     vm.description = "A large round room with a very high ceiling, covered in decorative tiles.";
 
     rooms = {};
 
-    $scope.$on("action.move", function(event,data){
+    $scope.$on("action.move", function (event, data) {
         console.log("You move to " + data.item.name)
     });
 
-    vm.setExits = function(direction,room){
+    vm.setExits = function (direction, room) {
         rooms[direction] = room;
     };
 
-    vm.move = function(direction){
+    vm.move = function (direction) {
         var newRoom = rooms[direction];
-        if(newRoom) {
+        if (newRoom) {
             $scope.$broadcast("action.move", {item: newRoom});
             console.log(newRoom.name + ": " + vm.description);
-            if(newRoom.inventory) {
+            if (newRoom.inventory) {
                 console.log("here you see a " + _.pluck(newRoom.inventory.items, "name").join(",") + ".");
             }
         }
         return newRoom || vm;
     }
 
-    vm.look = function(){
+    vm.look = function () {
         console.log(vm.me.name + ": " + vm.me.description);
-        console.log("here you see a " + _.pluck(vm.me.inventory.items,"name").join(",") + ".");
+        console.log("here you see a " + _.pluck(vm.me.inventory.items, "name").join(",") + ".");
     }
 
 

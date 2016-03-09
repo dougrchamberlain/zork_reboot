@@ -65,7 +65,7 @@ describe("Enemy tests: ", function () {
 
 
     it("should not add duplicate objects", inject(function (gameService,$rootScope) {
-        G.createGameObject("enemy");
+        G.createGameObject("enemy","enemyController");
 
 
         expect(function(){

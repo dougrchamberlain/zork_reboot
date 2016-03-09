@@ -25,14 +25,24 @@ angular.module("myApp").factory("gameService", ["$controller", "_", "$rootScope"
 
 
     var findItemByName = function(item,arr){
-        var index = _.findIndex(arr, function (i) {
-            return i.name == item;
-        });
+        var index = -1;
+        if(angular.isString(item)) {
+            index = _.findIndex(arr, function (i) {
+                return i.name.toLowerCase() == item.toLowerCase();
+            });
 
+        }
+        else
+        {
+            index = _.findIndex(arr, function (i) {
+                return i.name.toLowerCase() == item.name.toLowerCase();
+            });
+        }
         return index > -1 ? arr[index] : null;
     };
 
     var getGameObjects = function(name){
+        name = name || "";
         return findItemByName(name,gameObjects);
 
     };

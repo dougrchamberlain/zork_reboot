@@ -66,7 +66,7 @@ angular.module("myApp", [
 
     vm.createPlayer = function (name) {
         var player = G.createGameObject(name,"playerController");
-        var letter = G.createGameObject("game letter","inventoryItemController");
+        var letter = G.createGameObject("game-letter","inventoryItemController");
 
 
         player.add(letter);
@@ -103,7 +103,17 @@ angular.module("myApp", [
     });
 
 
-    vm.room = G.createGameObject("clock room","inventoryController");
+    $scope.$on("inventory.add",function(event,data){
+        console.log(data.item.name  + " added");
+    });
+
+    $scope.$on("inventory.remove",function(event,data){
+        console.log(data.item.name  + " dropped");
+    });
+
+
+    vm.room = G.createGameObject("clock room",["roomController","inventoryController"]);
+    var room2 = G.createGameObject("butt-room",["roomController","inventoryController"]);
 
     var door = G.createGameObject("door","doorController");
     door.opensWith("key");
@@ -113,10 +123,13 @@ angular.module("myApp", [
     vm.createDesk();
     vm.createVendingMachine();
 
-    vm.room.add(vm.vendingMachine);
-    vm.room.add(vm.couch);
-    vm.room.add(vm.desk);
-    vm.room.add(vm.player);
+    var ball = G.createGameObject("ball","inventoryItemController");
 
+    vm.room.add(ball);
+    vm.room.setExits("north",room2)
+
+    vm.player.currentRoom = vm.room;
+
+    console.log = function(){};
 
 }]);

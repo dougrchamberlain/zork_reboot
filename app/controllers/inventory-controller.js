@@ -1,7 +1,7 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("inventoryController", ["inventoryService", "$controller","$rootScope","me","gameService", function (inventoryService, $controller,$rootScope,me,gameService) {
+angular.module("myApp").controller("inventoryController", ["inventoryService", "$controller", "$rootScope", "me", "gameService", function (inventoryService, $controller, $rootScope, me, gameService) {
     var vm = this;
 
     vm.me = me;
@@ -10,8 +10,15 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
 
 
     var contains = function (item) {
-        return inventoryService.contains(item, vm.inventory);
-    }
+        item = gameService.getGameObjects(item) || item;
+
+        var results = _.where(vm.me.inventory.items, function (i) {
+            var match = item.name.toLowerCase() == i.name.toLowerCase();
+            return match;
+        });
+
+        return results.length > 0;
+    };
 
     vm.inventory = {
         items: [],
@@ -25,36 +32,18 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
     var currentState = OPEN;
 
     vm.add = function (item) {
-        $rootScope.$broadcast("inventory.add",{item: vm.me});
-        inventoryService.add(item, vm.inventory);
+        $rootScope.$broadcast("inventory.add", {item: item});
+        vm.me.inventory.items.push(item);
     };
 
-    vm.take = function (target,source) {
-        target = gameService.getGameObjects(target) ;
-        source = gameService.getGameObjects(source);
+    vm.remove = function (item) {
+        $rootScope.$broadcast("inventory.remove", {item: item});
+        var index = _.findIndex(vm.me.inventory.items, function (i) {
+            return i.name.toLowerCase() == item.name.toLowerCase();
+        });
+        vm.me.inventory.items.splice(index, 1);
 
-        if (!target) {
-            angular.forEach(vm.inventory.items, function (invItem) {
-                inventoryService.take(invItem.item, vm.inventory);
-            });
-        }
-
-        else if (source.inventory.contains(target) && target.item) {
-            if (source) {
-                var index = _.findIndex(source.inventory.items, function (i) {
-                    return i.name == target.name;
-                });
-                source.inventory.items.splice(index, 1);
-                inventoryService.take(target, vm.me.inventory);
-                console.log(vm.me.name + " takes the "  + target.name);
-            }
-
-        }
-        else if (!source.inventory.contains(target)){
-            console.log("There isn't any " + target.name + " to take.");
-        }
-
-    }
+    };
 
     vm.getState = function () {
         return currentState;
@@ -94,7 +83,6 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
         return currentState == OPEN;
 
     }
-
 
 
 }]);
