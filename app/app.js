@@ -77,20 +77,41 @@ angular.module("myApp", [
 
     vm.processCommand = function (command) {
         var words = command.split(' ');
-        var obj = vm[words[1]];
-        var item = inventoryService.findByName(words[1], vm.desk.inventory);
+
+        if(words[2]) {
+            vm.player[words[0]](words[1], words[2]);
+        }
+        else if(words[1]){
+            vm.player[words[0]](words[1]);
+        }
+        else{
+            vm.player[words[0]]();
+        }
 
     }
 
     vm.queueCommand = function (command, event) {
         if (event.keyCode == 13) {
             vm.status = [];
+            vm.processCommand(command);
 
         }
-    }
+    };
+
+    $scope.$on("item.action",function(event,data){
+        console.log(data.item.name  + " used on " + data.target.name);
+    });
 
 
     vm.room = G.createGameObject("clock room","inventoryController");
+
+    var door = G.createGameObject("door","doorController");
+    door.opensWith("key");
+
+    vm.createPlayer("Doug");
+    vm.createCouch();
+    vm.createDesk();
+    vm.createVendingMachine();
 
     vm.room.add(vm.vendingMachine);
     vm.room.add(vm.couch);

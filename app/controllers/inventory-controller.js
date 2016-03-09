@@ -1,7 +1,7 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("inventoryController", ["inventoryService", "$controller","$rootScope","me", function (inventoryService, $controller,$rootScope,me) {
+angular.module("myApp").controller("inventoryController", ["inventoryService", "$controller","$rootScope","me","gameService", function (inventoryService, $controller,$rootScope,me,gameService) {
     var vm = this;
 
     vm.me = me;
@@ -22,9 +22,6 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
     const CLOSED = 1;
     const LOCKED = 2;
 
-    var vm = this;
-
-
     var currentState = OPEN;
 
     vm.add = function (item) {
@@ -33,21 +30,30 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
     };
 
     vm.take = function (target,source) {
-        if (target && target.item) {
-            if (source) {
-                var index = _.findIndex(source.inventory.items, function (i) {
-                    return i.name == target.name
-                });
-                source.inventory.items.splice(index, 1);
-            }
-            inventoryService.take(target, vm.inventory);
-            console.log(target.name + " taken");
-        }
-        else if (!target){
-            angular.forEach(vm.inventory.items,function(invItem){
+        target = gameService.getGameObjects(target) ;
+        source = gameService.getGameObjects(source);
+
+        if (!target) {
+            angular.forEach(vm.inventory.items, function (invItem) {
                 inventoryService.take(invItem.item, vm.inventory);
             });
         }
+
+        else if (source.inventory.contains(target) && target.item) {
+            if (source) {
+                var index = _.findIndex(source.inventory.items, function (i) {
+                    return i.name == target.name;
+                });
+                source.inventory.items.splice(index, 1);
+                inventoryService.take(target, vm.me.inventory);
+                console.log(vm.me.name + " takes the "  + target.name);
+            }
+
+        }
+        else if (!source.inventory.contains(target)){
+            console.log("There isn't any " + target.name + " to take.");
+        }
+
     }
 
     vm.getState = function () {
@@ -68,7 +74,7 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
             console.log(vm.name + " is now locked");
         }
         return currentState == LOCKED;
-    }
+    };
 
     vm.unlock = function () {
         if (currentState !== OPEN && currentState != CLOSED) {
@@ -76,7 +82,7 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
             console.log(vm.name + " is now unlocked");
         }
         return currentState == CLOSED;
-    }
+    };
 
 
     vm.open = function () {
@@ -89,19 +95,6 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
 
     }
 
-    vm.look = function () {
-
-        if (currentState == OPEN) {
-            console.log("You look in the " + vm.name);
-            listContents();
-        }
-    }
-
-    var listContents = function () {
-        angular.forEach(vm.inventory.items, function (item) {
-            console.log(vm.name + " contains : " + item.name);
-        })
-    }
 
 
 }]);

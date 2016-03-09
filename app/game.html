@@ -4,45 +4,13 @@
 <div class="container-fluid">
     <!-- Modal -->
 
-
-
-Inventory:
-<ul>
-    <li ng-repeat="item in vm.player.inventory.items">
-        <button ng-show="!item.item" ng-click="vm.player.take(item,vm.player);">Take {{ item.name}}</button>
-        <button ng-click="vm.player.open(item);">Open {{ item.name}}</button>
-        <button ng-click="item.look();">Look {{ item.name}}</button>
-        <button ng-click="vm.room.take(item,vm.player);">Drop {{ item.name}}</button>
-    </li>
-</ul>
-
-
-Room:
-<ul>
-    <li ng-repeat="item in vm.room.inventory.items">
-        <button ng-show="item.item" ng-click="vm.player.take(item,vm.player);">Take {{ item.name}}</button>
-        <button ng-click="vm.player.open(item);">Open {{ item.name}}</button>
-        <button ng-click="item.look();">Look {{ item.name}}</button>
-        <button ng-click="vm.room.take(item,vm.player);">Drop {{ item.name}}</button>
-        <div class="row">
-            <div ng-show="item.getState() == 0">
-                <button ng-show="item.getState() != 1" ng-click="item.close();">close {{ item.name }}</button>
-                <button ng-show="item.getState() == 1" ng-click="item.lock();">lock {{item.name}}</button>
-                <button ng-show="item.getState() == 2" ng-click="item.unlock();">unlock {{item.name}}</button>
-                <ul>
-                    <li ng-repeat="sub in item.inventory.items">
-                        <button ng-click ="sub.look()">{{ sub.name}}</button>
-                        <button ng-show="sub.item" ng-click="vm.player.take(sub,item);">Take {{ sub.name}}</button>
-                        <button  ng-click="vm.player.open(sub);">Open {{ sub.name}}</button>
-
-                    </li>
-                </ul>
-            </div>
+<div class="row">
+    <div class="col-xs-6">
+        <div class="form-group">
+            <input class="form-control" type="text" ng-model="vm.command" ng-keyup="vm.queueCommand(vm.command,$event)"/>
         </div>
-    </li>
-</ul>
-
-
+    </div>
+</div>
 
 
 </div>

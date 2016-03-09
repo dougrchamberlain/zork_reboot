@@ -47,7 +47,7 @@ describe('appController', function () {
     });
 
     it("should create a desk with a drawer", function () {
-        var vm = createController("inventoryController");
+        var vm = createController();
 
         var desk = vm.createDesk();
 
@@ -57,7 +57,7 @@ describe('appController', function () {
 
 
     it("should create a couch with change in it", function () {
-        var vm = createController("inventoryController");
+        var vm = createController();
 
         var couch = vm.createCouch();
 
@@ -66,7 +66,7 @@ describe('appController', function () {
 
 
     it("should create a vending machine with snacks in it", function () {
-        var vm = createController("inventoryController");
+        var vm = createController();
 
         var vendingMachine = vm.createVendingMachine();
 
