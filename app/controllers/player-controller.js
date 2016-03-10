@@ -179,11 +179,8 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     };
 
     var onEnter = function(room){
-        vm.player = G.getGameObjects("doug");
-        if(room.name == "room 1" && vm.player.inventory.contains("key")){
-            console.log("you leave!");
-        }
     };
+
     var onExit = function(){};
 
     vm.move = function (direction) {

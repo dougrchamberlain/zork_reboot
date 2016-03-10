@@ -94,7 +94,7 @@ angular.module("myApp", [
         if (event.keyCode == 13) {
             vm.status = [];
             vm.processCommand(command);
-
+            vm.command = "";
         }
     };
 
