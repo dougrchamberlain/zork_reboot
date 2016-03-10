@@ -39,7 +39,7 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
         }
         else {
             item.use();
-            $rootScope.$broadcast("item.action", {item: {name: "You"}, target: target});
+            $rootScope.$broadcast("item.action", {item: vm.me, target: item});
         }
     };
 
@@ -69,33 +69,34 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
         }
     });
 
-    vm.take = function (item,source) {
-        item =  G.getGameObjects(item);
-        if(_.contains(item.controllers,"inventoryItemController")){
-        source = G.getGameObjects(source) || vm.me.currentRoom;
+    vm.take = function (item, source) {
+        item = G.getGameObjects(item);
+        if (_.contains(item.controllers, "inventoryItemController")) {
+            source = G.getGameObjects(source) || vm.me.currentRoom;
 
-        if (!item) {
-            angular.forEach(source.inventory.items, function (invItem) {
-                vm.me.add(invItem);
-                vm.me.remove(invItem);
-            });
+            if (!item) {
+                angular.forEach(source.inventory.items, function (invItem) {
+                    vm.me.add(invItem);
+                    vm.me.remove(invItem);
+                });
+            }
+            else if (item && source.me.inventory.contains(item.name)) {
+                vm.me.add(item);
+                source.remove(item);
+                console.log(vm.me.name + " takes the " + item.name);
+            }
+            else if (!source.inventory.contains(item.name)) {
+                console.log("There isn't any " + item.name + " to take.");
+            }
         }
-        else if (item && source.me.inventory.contains(item.name)) {
-            vm.me.add(item);
-            source.remove(item);
-            console.log(vm.me.name + " takes the " + item.name);
-        }
-        else if (!source.inventory.contains(item.name)) {
-            console.log("There isn't any " + item.name + " to take.");
-        }}
-        else{
+        else {
             console.log("You can't take the " + item.name);
         }
 
     }
 
-    vm.i = function(){
-        angular.forEach(vm.me.inventory.items,function(i){
+    vm.i = function () {
+        angular.forEach(vm.me.inventory.items, function (i) {
             console.log(i.name);
         })
     }
@@ -142,7 +143,10 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     var vm = this;
     var ringCount = 0;
 
-    var player = G.getGameObjects("player");
+    vm.onStart = function () {
+        player = G.getByComponent("playerController");
+        key = G.getGameObjects("key")
+    }
 
 
     $rootScope.$on("item.action", function (event, data) {
@@ -161,13 +165,19 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     }
 
 
-}]).controller("roomController", ["me", "$scope","gameService", function (me, $scope,G) {
+}]).controller("roomController", ["me", "$scope", "gameService", function (me, $scope, G) {
     var vm = this;
     vm.me = me;
     vm.description = "";
 
     vm.rooms = {};
 
+    var player,key;
+
+    vm.onStart = function () {
+        player = G.getByComponent("playerController");
+        key = G.getGameObjects("key")
+    }
 
 
     $scope.$on("action.move", function (event, data) {
@@ -178,10 +188,15 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
         vm.rooms[direction] = room;
     };
 
-    var onEnter = function(room){
+    var onEnter = function (room) {
+
+        if (player.inventory.contains(key) === true && room.name === "room 2") {
+            console.log("you win");
+        }
     };
 
-    var onExit = function(){};
+    var onExit = function () {
+    };
 
     vm.move = function (direction) {
 

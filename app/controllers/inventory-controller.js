@@ -12,7 +12,7 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
     var contains = function (item) {
         item = gameService.getGameObjects(item) || item;
 
-        var results = _.where(vm.me.inventory.items, function (i) {
+        var results = _.filter(vm.me.inventory.items, function (i) {
             var match = item.name.toLowerCase() == i.name.toLowerCase();
             return match;
         });

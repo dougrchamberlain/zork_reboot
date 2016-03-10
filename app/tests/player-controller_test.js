@@ -95,22 +95,6 @@ describe("Player tests: ", function () {
 
 
 
-    it("should call move and move to another room", function () {
-        var player =  G.createGameObject("player","playerController");
-        var room1 =  G.createGameObject("room1",["roomController","inventoryController"]);
-        var room2 =  G.createGameObject("room2",["roomController","inventoryController"]);
-
-        room1.setExits("north",room2);
-
-        player.currentRoom = room1;
-
-        player["move"]("north");
-
-        expect(player.currentRoom).toBe(room2);
-    });
-
-
-
     it("should drop item into currentRoom", function () {
         var player =  G.createGameObject("player","playerController");
         var room1 =  G.createGameObject("room1",["roomController","inventoryController"]);
@@ -126,22 +110,6 @@ describe("Player tests: ", function () {
     });
 
 
-    it("Should be the e2e test",function(){
-        var player =  G.createGameObject("player","playerController");
-        var room1 =  G.createGameObject("start room",["roomController","inventoryController"]);
-        var room2 =  G.createGameObject("bell room",["roomController","inventoryController"]);
-        var key = G.createGameObject("key","inventoryItemController");
-        var bell = G.createGameObject("bell","bellController");
-        var door = G.createGameObject("door","doorController");
-
-        player.currentRoom = room1;
-        room1.setExits("north",room2);
-        room1.add(key);
-        room2.add(bell);
-        player.take("key","start room");
-        player.move("north");
-        player.use("bell");
-    });
 
     it("should not take a thing that isn't in the room", function(){
 
@@ -156,35 +124,6 @@ describe("Player tests: ", function () {
         //player.move("north");
         player.take("bell");
         expect(player.inventory.contains("bell")).toBe(false);
-
-
-    });
-
-    it("should  take a thing that is in the room", function(){
-
-        var player =  G.createGameObject("player","playerController");
-        var room1 =  G.createGameObject("start room",["roomController","inventoryController"]);
-        var room2 =  G.createGameObject("bell room",["roomController","inventoryController"]);
-        var bell = G.createGameObject("bell",["bellController", "inventoryItemController"]);
-
-        player.currentRoom = room1;
-        room1.setExits("north",room2);
-        room2.add(bell);
-        player.move("north");
-        player.take("bell","bell room");
-        expect(player.inventory.items.length).toBe(1);
-
-
-    });
-
-    it("should ring bell and add 100 to score", function(){
-
-        var player =  G.createGameObject("player","playerController");
-        var bell = G.createGameObject("bell",["bellController", "inventoryItemController"]);
-
-        player.add("bell");
-        player.use("bell");
-        expect(player.score.current).toBe(100);
 
 
     });

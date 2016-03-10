@@ -46,6 +46,17 @@ angular.module("myApp").factory("gameService", ["$controller", "_", "$rootScope"
         return findItemByName(name,gameObjects);
 
     };
+
+    var getByComponent = function(component){
+        component = component || "";
+        var foundObject  = _.find(gameObjects, function(gameObject){
+            var results = _.contains(gameObject.controllers, component);
+            return results === true;
+        });
+
+        return foundObject;
+    }
+
     var createGameObject = function (name,controllers) {
         var me = {};
         me.name = name;
@@ -79,8 +90,27 @@ angular.module("myApp").factory("gameService", ["$controller", "_", "$rootScope"
         return me;
     };
 
+    var start = function(){
+        angular.forEach(gameObjects, function(gameObject){
+            if(gameObject.onStart){
+                gameObject.onStart();
+            }
+        });
+    };
+
+    var update = function(){
+        angular.forEach(gameObjects, function(gameObject){
+            if(gameObject.update){
+                gameObject.update();
+            }
+        });
+    };
+
     return {
         createGameObject: createGameObject,
-        getGameObjects: getGameObjects
+        getGameObjects: getGameObjects,
+        getByComponent: getByComponent,
+        start: start,
+        update: update
     }
 }]);

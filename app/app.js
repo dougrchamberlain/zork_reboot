@@ -94,12 +94,13 @@ angular.module("myApp", [
         if (event.keyCode == 13) {
             vm.status = [];
             vm.processCommand(command);
+            G.update();
             vm.command = "";
         }
     };
 
     $scope.$on("item.action",function(event,data){
-        console.log(data.item.name  + " used on " + data.target.name);
+        console.log(data.item.name  + " used " + data.target.name);
     });
 
 
@@ -196,7 +197,7 @@ angular.module("myApp", [
 
     room18.setExits("north", room16);
     room18.setExits("south", room14);
-    room18.setExits("west", room4);
+    room18.setExits("east", room24);
 
     room19.setExits("west", room15);
     room19.setExits("east", room20);
@@ -223,9 +224,11 @@ angular.module("myApp", [
     room2.description = "Ending Room: If you made it here, you can leave or whatever.";
 
     var key = G.createGameObject("key",["inventoryItemController"])
-    //room9.add(key);
 
+    room24.add(key);
+    room9.add(G.createGameObject("bell", ["bellController"]));
 
+    G.start();
 
 
 }]);
