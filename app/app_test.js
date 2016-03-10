@@ -45,31 +45,6 @@ describe('appController', function () {
         expect(player.score.current).toBe(0);
     });
 
-    it("should create a desk with a drawer", function () {
-        var vm = createController();
-
-
-        expect(vm.desk.inventory.items.length).toBe(1);
-
-    });
-
-
-    it("should create a couch with change in it", function () {
-        var vm = createController();
-
-        var couch = vm.couch;
-
-        expect(couch.inventory.items.length).toBe(1);
-    });
-
-
-    it("should create a vending machine with snacks in it", function () {
-        var vm = createController();
-
-        var vendingMachine = vm.vendingMachine;
-
-        expect(vendingMachine.inventory.items.length).toBe(4);
-    });
 
 
 

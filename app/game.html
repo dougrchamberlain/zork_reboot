@@ -12,6 +12,12 @@
     </div>
 </div>
 
+    <div class="row">
+        <pre>{{vm.player.currentRoom.name}}</pre>
+        <pre>{{vm.player.currentRoom.description}}</pre>
+        <pre ng-repeat="item in vm.player.currentRoom.inventory.items">{{item.name}}</pre>
+        <pre ng-repeat="(key, value) in vm.player.currentRoom.rooms">{{key}}</pre>
+    </div>
 
 </div>
 

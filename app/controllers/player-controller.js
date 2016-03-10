@@ -161,24 +161,37 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     }
 
 
-}]).controller("roomController", ["me", "$scope", function (me, $scope) {
+}]).controller("roomController", ["me", "$scope","gameService", function (me, $scope,G) {
     var vm = this;
     vm.me = me;
-    vm.description = "A large round room with a very high ceiling, covered in decorative tiles.";
+    vm.description = "";
 
-    rooms = {};
+    vm.rooms = {};
+
+
 
     $scope.$on("action.move", function (event, data) {
         console.log("You move to " + data.item.name)
     });
 
     vm.setExits = function (direction, room) {
-        rooms[direction] = room;
+        vm.rooms[direction] = room;
     };
 
+    var onEnter = function(room){
+        vm.player = G.getGameObjects("doug");
+        if(room.name == "room 1" && vm.player.inventory.contains("key")){
+            console.log("you leave!");
+        }
+    };
+    var onExit = function(){};
+
     vm.move = function (direction) {
-        var newRoom = rooms[direction];
+
+        var newRoom = vm.rooms[direction];
         if (newRoom) {
+            onEnter(newRoom);
+            onExit();
             $scope.$broadcast("action.move", {item: newRoom});
             console.log(newRoom.name + ": " + vm.description);
             if (newRoom.inventory) {
