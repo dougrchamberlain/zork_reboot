@@ -219,7 +219,7 @@ angular.module("myApp", [
 
     vm.player.currentRoom = room1;
 
-    room1.description = "Starting Room: You wake in this room, there is a sign, find the key and get to the exit to leave.";
+    room1.description = "Starting Room: Find your way to room 2";
     room2.description = "Ending Room: If you made it here, you can leave or whatever.";
 
     var key = G.createGameObject("key",["inventoryItemController"])
