@@ -205,7 +205,7 @@ angular.module("myApp", [
 
     room20.setExits("west", room19);
 
-    room21.setExits("east", room21);
+    room21.setExits("east", room22);
 
 
     room22.setExits("south", room14);
