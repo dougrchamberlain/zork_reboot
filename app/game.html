@@ -4,21 +4,33 @@
 <div class="container-fluid">
     <!-- Modal -->
 
-<div class="row">
-    <div class="col-xs-6">
-        <div class="form-group">
-            <input class="form-control" type="text" ng-model="vm.command" ng-keyup="vm.queueCommand(vm.command,$event)"/>
+    <div class="row">
+        <div class="nav navbar-inverse">
+           <h4>{{vm.player.currentRoom.name}}&nbsp; SCORE:{{vm.player.score.current}}&nbsp; MOVES:{{vm.player.score.current}}</h4>
         </div>
     </div>
-</div>
 
-    <div class="row">
-        <pre>{{vm.player.currentRoom.name}}</pre>
-        <pre>{{vm.player.currentRoom.description}}</pre>
-        <pre ng-repeat="item in vm.player.currentRoom.inventory.items">{{item.name}}</pre>
-        <pre ng-repeat="(key, value) in vm.player.currentRoom.rooms">{{key}}</pre>
+
+    <div class="row" style="height: 568px; overflow-y: scroll">
+        <div class="col-xs-8">
+            <h2>{{vm.player.currentRoom.name}}</h2>
+            <p>{{vm.player.currentRoom.description}}</p>
+        </div>
+
     </div>
 
+    <div class="row">
+        <p ng-repeat="message in vm.messages track by $index">{{message}}</p>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="form-group">
+                <input class="form-control" type="text" ng-model="vm.command" ng-keyup="vm.queueCommand(vm.command,$event)"/>
+            </div>
+        </div>
+    </div>
 </div>
 
 

@@ -1,7 +1,8 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("playerController", ["$controller", "$rootScope", "me", "gameService", function ($controller, $rootScope, me, G) {
+angular.module("myApp").controller("playerController", ["$controller",
+    "$rootScope", "me", "gameService","zorkMessageService", function ($controller, $rootScope, me, G,messageService) {
     var vm = this;
     vm.score = {
         current: 0
@@ -44,8 +45,7 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     };
 
     vm.look = function () {
-        console.log(vm.me.currentRoom.name + ": " + vm.me.currentRoom.description);
-        console.log("here you see a " + _.pluck(vm.me.currentRoom.inventory.items, "name").join(",") + ".");
+        vm.me.currentRoom.roomLook(vm.me.currentRoom);
     }
 
     var listContents = function (container) {
@@ -70,17 +70,21 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     });
 
     vm.take = function (item, source) {
+        if (!item) {
+            angular.forEach(vm.me.currentRoom.inventory.items, function (invItem) {
+                messageService.add(invItem.name + " taken.");
+                vm.me.add(invItem);
+                vm.me.remove(invItem);
+            });
+            return;
+        }
+
         item = G.getGameObjects(item);
+
         if (_.contains(item.controllers, "inventoryItemController")) {
             source = G.getGameObjects(source) || vm.me.currentRoom;
 
-            if (!item) {
-                angular.forEach(source.inventory.items, function (invItem) {
-                    vm.me.add(invItem);
-                    vm.me.remove(invItem);
-                });
-            }
-            else if (item && source.me.inventory.contains(item.name)) {
+         if (item && source.me.inventory.contains(item.name)) {
                 vm.me.add(item);
                 source.remove(item);
                 console.log(vm.me.name + " takes the " + item.name);
@@ -165,10 +169,30 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     }
 
 
-}]).controller("roomController", ["me", "$scope", "gameService", function (me, $scope, G) {
+}]).controller("roomController", ["me", "$scope", "gameService","zorkMessageService", function (me, $scope, G, messageService) {
     var vm = this;
     vm.me = me;
     vm.description = "";
+
+    var getKeysAsArray = function(obj){
+        var keys = [];
+        for(var key in obj){
+            keys.push(key);
+        }
+        return keys;
+    };
+
+    vm.fullyDescribe = function(){
+        return vm.me.description + " " + listExits();
+    }
+
+    var listExits = function(){
+        var roomExits = getKeysAsArray(vm.rooms);
+        if(roomExits.length > 1){
+            return "There are exits " +roomExits.join(", ") + ".";
+        }
+        return  "There is an exit to the " +roomExits.join(" ") + ".";
+    }
 
     vm.rooms = {};
 
@@ -189,10 +213,7 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
     };
 
     var onEnter = function (room) {
-
-        if (player.inventory.contains(key) === true && room.name === "room 2") {
-            console.log("you win");
-        }
+        vm.roomLook(room);
     };
 
     var onExit = function () {
@@ -200,23 +221,37 @@ angular.module("myApp").controller("playerController", ["$controller", "$rootSco
 
     vm.move = function (direction) {
 
-        var newRoom = vm.rooms[direction];
+        var newRoom = vm.me.rooms[direction];
         if (newRoom) {
-            onEnter(newRoom);
             onExit();
+            onEnter(newRoom);
             $scope.$broadcast("action.move", {item: newRoom});
-            console.log(newRoom.name + ": " + vm.description);
-            if (newRoom.inventory) {
-                console.log("here you see a " + _.pluck(newRoom.inventory.items, "name").join(",") + ".");
-            }
         }
         return newRoom || vm;
     }
 
-    vm.look = function () {
-        console.log(vm.me.name + ": " + vm.me.description);
-        console.log("here you see a " + _.pluck(vm.me.inventory.items, "name").join(",") + ".");
+    vm.roomLook = function (room) {
+        messageService.add(room.name + ": " + room.description);
+        angular.forEach(room.inventory.items,function(item){
+            messageService.add(item.description);
+            item.look();
+        });
     }
 
 
-}]);
+}]).factory("zorkMessageService",[
+    function(){
+
+        var messages = [];
+
+        return {
+            messages : function (){
+                return messages;
+            }
+            ,
+            add : function(message){
+                messages.push(message);
+            }
+        }
+    }
+]);

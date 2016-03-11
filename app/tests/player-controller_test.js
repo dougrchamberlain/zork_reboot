@@ -84,14 +84,6 @@ describe("Player tests: ", function () {
     });
 
 
-    it("should call use on a bell and it should ring", function () {
-        var player =  G.createGameObject("player","playerController");
-        var bell =  G.createGameObject("bell","bellController");
-
-        player["use"]("bell");
-
-        expect(bell.ringCount()).toBe(1);
-    });
 
 
 

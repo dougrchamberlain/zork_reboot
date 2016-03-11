@@ -21,7 +21,7 @@ angular.module("myApp", [
         controller: "appController",
         controllerAs: "vm"
     });
-}]).controller("appController", ["$scope", "$resource", "_", "$controller", "inventoryService", "gameService", function ($scope, $resource, _, $controller, inventoryService, G) {
+}]).controller("appController", ["$scope", "$resource", "_", "$controller", "inventoryService", "gameService","zorkMessageService",  function ($scope, $resource, _, $controller, inventoryService, G,messageService) {
     var vm = this;
 
     vm.createVendingMachine = function () {
@@ -93,6 +93,7 @@ angular.module("myApp", [
     vm.queueCommand = function (command, event) {
         if (event.keyCode == 13) {
             vm.status = [];
+            messageService.add("> " + command);
             vm.processCommand(command);
             G.update();
             vm.command = "";
@@ -113,8 +114,8 @@ angular.module("myApp", [
     });
 
 
-    var room1 = G.createGameObject("room 1",["roomController","inventoryController"]);
-    var room2 = G.createGameObject("room 2",["roomController","inventoryController"]);
+    var room1 = G.createGameObject("Starting Room",["roomController","inventoryController"]);
+    var room2 = G.createGameObject("Auditorium",["roomController","inventoryController"]);
     var room3 = G.createGameObject("room 3",["roomController","inventoryController"]);
     var room4 = G.createGameObject("room 4",["roomController","inventoryController"]);
     var room5 = G.createGameObject("room 5",["roomController","inventoryController"]);
@@ -218,16 +219,30 @@ angular.module("myApp", [
     room24.setExits("north", room18);
     room24.setExits("nw", room23);
 
+    vm.messages = messageService.messages();
+
 
     vm.player.currentRoom = room1;
 
-    room1.description = "Starting Room: Find your way to room 2";
+    room1.description = "Hundreds of feet above you see light from where you were lowered here by your captors.  The room is dimly lit, but you can make out this is an underground storage facility of some kind.";
     room2.description = "Ending Room: If you made it here, you can leave or whatever.";
+    room9.description = "You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food. A passage leads to the east and a dark staircase can be seen leading upward, another staircase leads down. there are other openings to the north south, and southwest"
 
     var key = G.createGameObject("key",["inventoryItemController"])
+    var sack = G.createGameObject("sack", ["inventoryItemController","inventoryController"]);
+    var jar = G.createGameObject("bottle", ["inventoryItemController","inventoryController"]);
+    var water = G.createGameObject("water", ["inventoryItemController"]);
 
-    room24.add(key);
-    room9.add(G.createGameObject("bell", ["bellController"]));
+    sack.description = "On the table is an elongated brown sack, smelling of hot peppers.";
+    jar.description = "A bottle is sitting on the table."
+    water.description = "A quantity of water"
+
+    room9.add(sack);
+    room9.add(jar);
+    jar.add(water);
+    jar.visibleContents = true;
+
+
 
     G.start();
 

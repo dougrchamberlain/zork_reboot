@@ -1,10 +1,14 @@
 /**
  * Created by doug on 2/27/2016.
  */
-angular.module("myApp").controller("inventoryController", ["inventoryService", "$controller", "$rootScope", "me", "gameService", function (inventoryService, $controller, $rootScope, me, gameService) {
+angular.module("myApp").controller("inventoryController", ["inventoryService",
+    "$controller", "$rootScope", "me", "gameService","zorkMessageService",
+    function (inventoryService, $controller, $rootScope, me, gameService, messageService) {
     var vm = this;
 
     vm.me = me;
+
+    vm.me.visibleContents = false;
 
     vm.healthController = $controller("healthController");
 
@@ -64,6 +68,18 @@ angular.module("myApp").controller("inventoryController", ["inventoryService", "
         }
         return currentState == LOCKED;
     };
+
+    vm.look = function(){
+        if(vm.me.visibleContents == false || vm.me.inventory.items.length == 0 ) {
+            //messageService.add(vm.me.name);
+        }else{
+            messageService.add(vm.me.name +  (vm.me.inventory.items.length > 0 ? " contains:" : "."));
+            angular.forEach(vm.me.inventory.items,function(item){
+                messageService.add(item.description);
+            });
+        }
+
+    }
 
     vm.unlock = function () {
         if (currentState !== OPEN && currentState != CLOSED) {

@@ -1,5 +1,4 @@
 module.exports = function (config) {
-    console.log = function(){};
     config.set({
         files: [
             'bower_components/underscore/underscore.js',
