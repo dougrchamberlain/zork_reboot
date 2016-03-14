@@ -10,7 +10,8 @@ angular.module("myApp", [
     "ui.bootstrap",
     "ngAnimate",
     "ngResource",
-    "underscore"
+    "underscore",
+    "viewControllers"
 ]).factory("messageFactory", ["_", function (_) {
 
 }]).config(["$stateProvider", "$urlRouterProvider", function ($stateProvider, $urlRouterProvider) {
@@ -19,6 +20,11 @@ angular.module("myApp", [
         url: "/",
         templateUrl: "game.html",
         controller: "appController",
+        controllerAs: "vm"
+    }).state("rooms", {
+        url: "/rooms",
+        templateUrl: "rooms.html",
+        controller: "roomsController",
         controllerAs: "vm"
     });
 }]).controller("appController", ["$scope", "$resource", "_", "$controller", "inventoryService", "gameService","zorkMessageService",  function ($scope, $resource, _, $controller, inventoryService, G,messageService) {
