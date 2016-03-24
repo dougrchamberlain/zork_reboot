@@ -1,52 +1,33 @@
-describe('appController', function () {
-    beforeEach(function () {
+/**
+ * Created by doug on 3/23/2016.
+ */
+describe("Command Interpreter",function(){
 
+    var $controller;
 
-        module("ui.router");
-        module("underscore");
+    beforeEach(function(){
         module("myApp");
-
-
     });
 
-    var $rootScope, $scope, $controller, G, createController, _, mapService;
-
-    beforeEach(inject(function (_$rootScope_, _$controller_, ___, _mapService_,_gameService_) {
-        // The injector unwraps the underscores (_) from around the parameter names when matching
-        $rootScope = _$rootScope_;
-        $scope = $rootScope.$new();
+    beforeEach(inject(function(_$controller_){
         $controller = _$controller_;
-        _ = ___;
-        mapService = _mapService_;
-        G = _gameService_;
-
-        createController = function () {
-            return $controller("appController",{$scope: $scope});
-        }
-
     }));
 
-    it("should create a new player instance", function () {
-        var vm = createController();
-        var player = vm.player;
+    it("should find valid commands",function(){
+        var vm = $controller("appController");
+        vm.inputText = "Look";
 
+        vm.readCommand({keyCode: 13});
 
-        expect(player.name).toBe("Doug");
-        expect(player.healthController.health.current).toBe(100);
+        expect(vm.command.isValid).toBe(true);
     });
 
-    it("should check players starting health and score", function () {
-        var vm = createController();
+    it("should find valid commands",function(){
+        var vm = $controller("appController");
+        vm.inputText = "Look";
 
-        var player = vm.player;
+        vm.readCommand({keyCode: 13});
 
-
-        expect(player.healthController.health.current).toBe(100);
-        expect(player.score.current).toBe(0);
+        expect(vm.command.isValid).toBe(true);
     });
-
-
-
-
-
 });

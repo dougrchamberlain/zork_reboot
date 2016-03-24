@@ -5,7 +5,7 @@ var methodOverride = require('method-override'); // simulate DELETE and PUT (exp
 var app = express();
 
 
-mongoose.connect('mongodb://localhost:27017/zork');
+//mongoose.connect('mongodb://localhost:27017/zork');
 
 app.use(express.static(__dirname + "/app"));
 app.use("/bower_components", express.static(__dirname + "/bower_components"));
