@@ -33,6 +33,9 @@
 
 <div class="container" ng-controller="appController as vm">
   <div class="row">
+    <pre>{{vm.outputText()}}</pre>
+  </div>
+  <div class="row">
     <input class="form-control" type="text" ng-model="vm.inputText" ng-keyup="vm.readCommand($event);">
     <button class="btn btn-default">enter</button>
   </div>

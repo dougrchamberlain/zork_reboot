@@ -15,10 +15,21 @@ angular.module("myApp", [
 
 }]).config(["$stateProvider", "$urlRouterProvider", function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/');
-}]).controller("appController", ["$resource", "_","lookService", function ( $resource, _,lookService) {
+}]).controller("appController", ["$resource", "_","lookService","gameService","outputService", function ( $resource, _,lookService,gameService,outputService) {
     var vm = this;
     vm.inputText = "";
+    vm.outputText = outputService.out;
+
+    var startingRoom = $resource("starting-room.json");
+
+    startingRoom.get( function(payload){
+        console.log(payload);
+        gameService.setRoom(payload);
+    });
+
     var commandList = [{keyword: "look", delegate: lookService.lookAt }];
+
+
 
     var processCommand = function (command) {
         var text = command.split(' ');
@@ -40,7 +51,7 @@ angular.module("myApp", [
         if (event.keyCode == 13) {
             vm.command = processCommand(vm.inputText);
             if(vm.command.isValid){
-                console.log(vm.command.delegate);
+                outputService.writeOut("\n\r>> " + vm.command.keyword + "\n\r");
                 vm.command.delegate.apply(null, []);
                 //TODO: try and execute the command against the service, passing in the needed objects
             }
@@ -54,14 +65,14 @@ angular.module("myApp", [
             item.describe();
         }
         else{
-            gameService.currentRoom().describe();
+           gameService.describe(gameService.currentRoom());
         }
     }
 
     return {
         lookAt: lookAt
     }
-}]).factory("gameService", function(){
+}]).factory("gameService", ["outputService", function(outputService){
     var _currentRoom;
 
     var setRoom = function(room){
@@ -71,10 +82,31 @@ angular.module("myApp", [
         return _currentRoom;
     };
 
+    var describe = function(item){
+        //TODO: a whole bunch of logic to write out descriptions
+        console.log(item.description);
+        outputService.writeOut(item.description);
+    }
+
     return {
         currentRoom: currentRoom,
-        setRoom: setRoom
+        setRoom: setRoom,
+        describe: describe
     }
+}]).factory("outputService", function(){
+        var output = "";
+
+
+        return {
+            writeOut: function(text){
+                output = output + text + "\n\r";
+            },
+            out: function(){
+                console.log(output);
+                return output;
+            }
+        }
+
 });
 
 //TODO: make an input processing service, that when it finds the right method, it tries to execute it, and passes back if it can't

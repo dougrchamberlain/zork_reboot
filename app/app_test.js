@@ -24,6 +24,13 @@ describe("Command Interpreter", function () {
             });
         });
 
+        it("should have starting room",function(){
+            var room = {name: "starting room"}
+
+            gameService.set(room);
+
+           expect(gameService.currentRoom().name).toBe("starting room");
+        });
 
         it("should find valid commands", function () {
             var vm = $controller("appController");
@@ -59,14 +66,14 @@ describe("Command Interpreter", function () {
         });
 
         fit("should look at a thing and describe if it can be described.", function () {
-            var room = {describe: function(){ return "this room is neat";}};
-            spyOn(room, "describe").and.callThrough();
+            var room = {description : "this room is neat"};
+            spyOn(gameService, "describe").and.callThrough();
 
            gameService.setRoom(room);
 
 
             lookService.lookAt();
-            expect(room.describe).toHaveBeenCalled();
+            expect(gameService.describe).toHaveBeenCalled();
         });
 
 
