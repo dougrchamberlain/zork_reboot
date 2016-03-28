@@ -28,12 +28,24 @@ angular.module("myApp", [
         _.forEach(room.exits, function (exit) {
             gameService.createObject(exit);
         });
+        _.forEach(room.items, function (item) {
+            gameService.createObject(item);
+        });
     });
+
+    outputService.writeOut("[LIST OF COMMANDS]");
+
+
 
     var commandList = [{
         keyword: "look", delegate: lookService.lookAt
     }];
 
+    _.forEach(commandList, function(command){
+        outputService.writeOut(command.keyword);
+    });
+
+    outputService.writeOut("Please enter a command");
 
     var processCommand = function (command) {
         command = command.toLowerCase();
@@ -111,12 +123,18 @@ angular.module("myApp", [
         var createRoomDescription = function () {
             var newDescription = "";
             var visibleExits = _.where(_currentRoom.exits, {discovered: true});
+            var visibleItems = _.where(_currentRoom.items, {discovered: true});
 
             newDescription = _currentRoom.description;
 
             _.forEach(visibleExits, function (exit) {
                 var regex = new RegExp("\{\{" + exit.name + "\}\}", "i");
                 newDescription = newDescription.replace(regex, exit.description);
+            });
+
+            _.forEach(visibleItems, function (item) {
+                var regex = new RegExp("\{\{" + item.name + "\}\}", "i");
+                newDescription = newDescription.replace(regex, item.description);
             });
 
 
@@ -150,6 +168,7 @@ angular.module("myApp", [
     };
 
     var getObject = function (name) {
+        //change to advanced fuzzy search
         var results = _.findWhere(_gameObjects, {name: name});
         return results;
     }

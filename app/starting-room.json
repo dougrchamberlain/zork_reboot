@@ -1,17 +1,27 @@
 {
-  "description": "You find yourself in a dimly lit room.\nIt looks like the drab basement of an office building.\nTo the north end only one of the fluorescent lights in the ceiling is on.\nBelow the light is a {{north}} with a red glowing sign above it that reads \"EXIT\".\nThere is an electrical panel to the left of the door. There is a box on the floor near the panel. {{up}}",
-  "exits":
-    [
-      {
-        "name": "north",
-        "description": "a heavy door to the north",
-        "discovered": true
-      },
-      {
-        "name" :"up",
-        "description": "On the ceiling, one tile is pushed slightly to the side, exposing an opening into the duct work.",
-        "discovered": false
-      }
-    ]
-
+  "description": "You find yourself in a dimly lit room.\nIt looks like the drab basement of an office building.\nTo the north end only one of the fluorescent lights in the ceiling is on.\nBelow the light is a {{north}} with a red glowing sign above it that reads \"EXIT\".\nA {{panel}} is on the wall to the left of the door.\nA {{box}} is on the floor near the panel. {{up}}",
+  "items": [
+    {
+      "name": "panel",
+      "description": "panel over what is probably a breaker box",
+      "discovered": true
+    },
+    {
+      "name": "box",
+      "description": "small box with the top folded",
+      "discovered": true
+    }
+  ],
+  "exits": [
+    {
+      "name": "north",
+      "description": "heavy door to the north",
+      "discovered": true
+    },
+    {
+      "name": "up",
+      "description": "On the ceiling, one tile is pushed slightly to the side, exposing an opening into the duct work.",
+      "discovered": false
+    }
+  ]
 }
