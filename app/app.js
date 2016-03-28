@@ -22,9 +22,12 @@ angular.module("myApp", [
 
     var startingRoom = $resource("starting-room.json");
 
-    startingRoom.get(function (payload) {
-        console.log(payload);
-        gameService.setRoom(payload);
+    startingRoom.get(function (room) {
+        gameService.setRoom(room);
+
+        _.forEach(room.exits, function(exit){
+            gameService.createObject(exit);
+        });
     });
 
     var commandList = [{
@@ -95,13 +98,36 @@ angular.module("myApp", [
         _currentRoom = room;
     }
     var currentRoom = function () {
+         var createRoomDescription = function(){
+            var newDescription  = "";
+            var visibleExits = _.where(_currentRoom.exits, {discovered: true});
+
+             newDescription = _currentRoom.description;
+
+             _.forEach(visibleExits, function(exit){
+                 var regex = new RegExp("\{\{" + exit.name + "\}\}","i");
+                newDescription = newDescription.replace(regex,exit.description);
+             });
+
+
+             newDescription = newDescription.replace(/\{\{.+?\}\}/,"");
+            return newDescription
+        };
+
+        _currentRoom.describe = createRoomDescription;
+
         return _currentRoom;
     };
 
     var describe = function (item) {
         //TODO: a whole bunch of logic to write out descriptions
+        if(item.describe){
+            outputService.writeOut(item.describe());
+        }
+            else{
+            outputService.writeOut(item.description);
+        }
 
-        outputService.writeOut(item.description);
     }
 
     return {
