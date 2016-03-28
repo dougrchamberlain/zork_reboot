@@ -86,9 +86,8 @@ angular.module("myApp", [
 
     var lookAt = function (args) {
         var item = determineObjectOfInterest(args);
-        var isDiscoverable = angular.isUndefined(item) || item.discovered == true;
 
-        if (item && item.describe && isDiscoverable) {
+        if (item && item.discovered != false) {
             gameService.describe(item);
         }
         else{
