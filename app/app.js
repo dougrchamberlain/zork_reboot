@@ -20,7 +20,7 @@ angular.module("myApp", [
     vm.inputText = "";
     vm.outputText = outputService.out;
 
-    var startingRoom = $resource("starting-room.json");
+    var startingRoom = $resource("../public/starting-room.json");
 
     startingRoom.get(function (room) {
         gameService.setRoom(room);
