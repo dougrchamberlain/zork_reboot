@@ -10,7 +10,7 @@
       {
         "name" :"up",
         "description": "On the ceiling, one tile is pushed slightly to the side, exposing an opening into the duct work.",
-        "discovered": true
+        "discovered": false
       }
     ]
 

@@ -25,19 +25,13 @@ angular.module("myApp", [
     startingRoom.get(function (room) {
         gameService.setRoom(room);
 
-        _.forEach(room.exits, function(exit){
+        _.forEach(room.exits, function (exit) {
             gameService.createObject(exit);
         });
     });
 
     var commandList = [{
-        keyword: "look", delegate: lookService.lookAt,
-        params: {
-
-            0: {args: []},
-
-            1: {args: []}
-        }
+        keyword: "look", delegate: lookService.lookAt
     }];
 
 
@@ -48,27 +42,26 @@ angular.module("myApp", [
         var keyword = text.splice(0, 1)[0]; //get keyword
         var args = text;
 
+        var userCommand = {};
+
         var foundCommand = _.filter(commandList, function (commandObject) {
             return keyword === commandObject.keyword;
         })[0];
 
-        var isValid = angular.isDefined(foundCommand) && angular.isDefined(foundCommand.params[args.length]);
+        var isValid = angular.isDefined(foundCommand);
+        userCommand = angular.extend(foundCommand, {isValid: isValid});
 
-        _.forEach(args, function (arg) {
-            foundCommand.args.push(arg);
-        });
+        userCommand.args = args;
 
 
-        angular.extend(foundCommand, {isValid: isValid});
-
-        return foundCommand;
+        return userCommand;
     };
 
     vm.readCommand = function (event) {
         if (event.keyCode == 13) {
             vm.command = processCommand(vm.inputText);
             if (vm.command.isValid) {
-                outputService.writeOut("\n\r>> " + vm.command.keyword + "\n\r");
+                outputService.writeOut("\n\r>> " + vm.inputText + "\n\r");
                 vm.command.delegate.apply(null, vm.command.args);
                 vm.scroll = 1;
                 //TODO: try and execute the command against the service, passing in the needed objects
@@ -76,41 +69,59 @@ angular.module("myApp", [
         }
     };
 
-}]).factory("lookService", ["_", "gameService", function (_, gameService) {
+}]).factory("lookService", ["_", "gameService","outputService", function (_, gameService,outputService) {
 
-    var lookAt = function (item) {
-        if (item && item.describe) {
-            console.log("try to describe" + item);
-            item.describe();
+    var determineObjectOfInterest = function (args) {
+        var item;
+        if (args == "room" || args == null || args.length == 0) {
+            item = gameService.currentRoom();
         }
         else {
-            gameService.describe(gameService.currentRoom());
+            item = gameService.getObject(args);
         }
+
+        return item;
     }
+
+
+    var lookAt = function (args) {
+        var item = determineObjectOfInterest(args);
+        var isDiscoverable = angular.isUndefined(item) || item.discovered == true;
+
+        if (item && item.describe && isDiscoverable) {
+            gameService.describe(item);
+        }
+        else{
+            outputService.writeOut("You can't look at that.");
+        }
+    };
 
     return {
         lookAt: lookAt
     }
+
 }]).factory("gameService", ["outputService", function (outputService) {
     var _currentRoom;
+    var _gameObjects = [];
 
     var setRoom = function (room) {
         _currentRoom = room;
-    }
+    };
+
     var currentRoom = function () {
-         var createRoomDescription = function(){
-            var newDescription  = "";
+        var createRoomDescription = function () {
+            var newDescription = "";
             var visibleExits = _.where(_currentRoom.exits, {discovered: true});
 
-             newDescription = _currentRoom.description;
+            newDescription = _currentRoom.description;
 
-             _.forEach(visibleExits, function(exit){
-                 var regex = new RegExp("\{\{" + exit.name + "\}\}","i");
-                newDescription = newDescription.replace(regex,exit.description);
-             });
+            _.forEach(visibleExits, function (exit) {
+                var regex = new RegExp("\{\{" + exit.name + "\}\}", "i");
+                newDescription = newDescription.replace(regex, exit.description);
+            });
 
 
-             newDescription = newDescription.replace(/\{\{.+?\}\}/,"");
+            newDescription = newDescription.replace(/\{\{.+?\}\}/, "");
             return newDescription
         };
 
@@ -121,19 +132,35 @@ angular.module("myApp", [
 
     var describe = function (item) {
         //TODO: a whole bunch of logic to write out descriptions
-        if(item.describe){
+        if (item.describe) {
             outputService.writeOut(item.describe());
         }
-            else{
+        else {
             outputService.writeOut(item.description);
         }
 
+    };
+
+    var createObject = function (item) {
+
+        item.describe = function () {
+            return item.description || item.name;
+        }
+
+        _gameObjects.push(item);
+    };
+
+    var getObject = function (name) {
+        var results = _.findWhere(_gameObjects, {name: name});
+        return results;
     }
 
     return {
         currentRoom: currentRoom,
         setRoom: setRoom,
-        describe: describe
+        describe: describe,
+        createObject: createObject,
+        getObject: getObject
     }
 }]).factory("outputService", function () {
     var output = "";
