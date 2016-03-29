@@ -20,7 +20,7 @@ angular.module("myApp", [
     vm.inputText = "";
     vm.outputText = outputService.out;
 
-    var startingRoom = $resource("../public/starting-room.json");
+    var startingRoom = $resource("/public/starting-room.json");
 
     startingRoom.get(function (room) {
         gameService.setRoom(room);
@@ -36,12 +36,42 @@ angular.module("myApp", [
     outputService.writeOut("[LIST OF COMMANDS]");
 
 
+    var me = {
+        name: "me",
+        description: "An uninteresting person"
+    }
+
+    var panel = {
+        name: "panel",
+        description: "This looks like a breaker box, The switch marked \"lights\" is turned [off]."
+    }
+
+    gameService.createObject(me);
+
+    var help = function () {
+
+        _.forEach(commandList, function (command) {
+            if (command.description) {
+                outputService.writeOut(command.description);
+            }
+        });
+
+    }
 
     var commandList = [{
-        keyword: "look", delegate: lookService.lookAt
-    }];
+        keyword: "look",
+        delegate: lookService.lookAt,
+        category: "general",
+        description: "[LOOK]: type 'look' to look at a room or type 'look [item]' to look at a particular thing"
+    },
+        {
+            "keyword": "help",
+            delegate: help,
+            category: "general"
+        }
+    ];
 
-    _.forEach(commandList, function(command){
+    _.forEach(commandList, function (command) {
         outputService.writeOut(command.keyword);
     });
 
@@ -50,10 +80,10 @@ angular.module("myApp", [
     var processCommand = function (command) {
         command = command.toLowerCase();
 
+
         var text = command.split(' ');
         var keyword = text.splice(0, 1)[0]; //get keyword
         var args = text;
-
         var userCommand = {};
 
         var foundCommand = _.filter(commandList, function (commandObject) {
@@ -61,10 +91,8 @@ angular.module("myApp", [
         })[0];
 
         var isValid = angular.isDefined(foundCommand);
-        userCommand = angular.extend(foundCommand, {isValid: isValid});
-
+        angular.extend(userCommand, foundCommand, {isValid: isValid});
         userCommand.args = args;
-
 
         return userCommand;
     };
@@ -81,7 +109,7 @@ angular.module("myApp", [
         }
     };
 
-}]).factory("lookService", ["_", "gameService","outputService", function (_, gameService,outputService) {
+}]).factory("lookService", ["_", "gameService", "outputService", function (_, gameService, outputService) {
 
     var determineObjectOfInterest = function (args) {
         var item;
@@ -102,7 +130,7 @@ angular.module("myApp", [
         if (item && item.discovered != false) {
             gameService.describe(item);
         }
-        else{
+        else {
             outputService.writeOut("You can't look at that.");
         }
     };
@@ -119,11 +147,17 @@ angular.module("myApp", [
         _currentRoom = room;
     };
 
+    var createContentDescription = function (item, description) {
+        var regex = new RegExp("\{\{" + item.name + "\}\}", "i");
+        description = description.replace(regex, description);
+
+        return description;
+    }
+
     var currentRoom = function () {
         var createRoomDescription = function () {
             var newDescription = "";
             var visibleExits = _.where(_currentRoom.exits, {discovered: true});
-            var visibleItems = _.where(_currentRoom.items, {discovered: true});
 
             newDescription = _currentRoom.description;
 
@@ -132,55 +166,81 @@ angular.module("myApp", [
                 newDescription = newDescription.replace(regex, exit.description);
             });
 
+
+            createContentDescription(_currentRoom.contents, newDescription);
+
+            var visibleItems = _.where(_currentRoom.contents, {discovered: true});
             _.forEach(visibleItems, function (item) {
-                var regex = new RegExp("\{\{" + item.name + "\}\}", "i");
-                newDescription = newDescription.replace(regex, item.description);
+                createContentDescription(item, item.description);
+                if(item.contents){
+                    var contentDescription = "";
+                    var visibleContents =  _.where(item.contents, {discovered: true});
+                    _.forEach(visibleContents,function(contentItem){
+                        createContentDescription(contentItem, contentItem.description);
+                    });
+
+                }
+
             });
 
+               // newDescription = newDescription.replace(/\{\{.+?\}\}/, "");
+                return newDescription
+            };
 
-            newDescription = newDescription.replace(/\{\{.+?\}\}/, "");
-            return newDescription
+            _currentRoom.describe = createRoomDescription;
+
+            return _currentRoom;
         };
 
-        _currentRoom.describe = createRoomDescription;
+        var addObject = function (obj) {
+            _gameObjects.push(obj);
+        };
 
-        return _currentRoom;
-    };
+        var getObject = function (searchExpression) {
+            //TODO: make this a fuzzy search
 
-    var describe = function (item) {
-        //TODO: a whole bunch of logic to write out descriptions
-        if (item.describe) {
-            outputService.writeOut(item.describe());
-        }
-        else {
-            outputService.writeOut(item.description);
-        }
+            var item = _.filter(_gameObjects, function (obj) {
+                    return obj.name === searchExpression;
+                }) || [];
 
-    };
-
-    var createObject = function (item) {
-
-        item.describe = function () {
-            return item.description || item.name;
+            return item[0];
         }
 
-        _gameObjects.push(item);
-    };
+        var describe = function (item) {
+            //TODO: a whole bunch of logic to write out descriptions
+            if (item.describe) {
+                outputService.writeOut(item.describe());
+            }
+            else {
+                outputService.writeOut(item.description);
+            }
 
-    var getObject = function (name) {
-        //change to advanced fuzzy search
-        var results = _.findWhere(_gameObjects, {name: name});
-        return results;
+        };
+
+        var createObject = function (item) {
+
+            item.describe = function () {
+                return item.description || item.name;
+            }
+
+            _gameObjects.push(item);
+        };
+
+        var getObject = function (name) {
+            //change to advanced fuzzy search
+            var results = _.findWhere(_gameObjects, {name: name});
+            return results;
+        }
+
+        return {
+            currentRoom: currentRoom,
+            setRoom: setRoom,
+            describe: describe,
+            createObject: createObject,
+            getObject: getObject
+        }
     }
-
-    return {
-        currentRoom: currentRoom,
-        setRoom: setRoom,
-        describe: describe,
-        createObject: createObject,
-        getObject: getObject
-    }
-}]).factory("outputService", function () {
+    ]).factory("outputService", function () {
     var output = "";
 
 

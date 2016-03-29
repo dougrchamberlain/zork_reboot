@@ -20,12 +20,11 @@ describe("Command Interpreter", function () {
     describe("look at input commands", function () {
         beforeEach(function () {
             spyOn(lookService, "lookAt").and.callFake(function (item) {
-                console.log("item is described")
             });
         });
 
         it("should have starting room",function(){
-            var room = {name: "starting room"}
+            var room = {name: "starting room"};
 
             gameService.set(room);
 

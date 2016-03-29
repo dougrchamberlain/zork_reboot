@@ -1,6 +1,6 @@
 {
   "description": "You find yourself in a dimly lit room.\nIt looks like the drab basement of an office building.\nTo the north end only one of the fluorescent lights in the ceiling is on.\nBelow the light is a {{north}} with a red glowing sign above it that reads \"EXIT\".\nA {{panel}} is on the wall to the left of the door.\nA {{box}} is on the floor near the panel. {{up}}",
-  "items": [
+  "contents": [
     {
       "name": "panel",
       "description": "panel over what is probably a breaker box",
@@ -8,8 +8,18 @@
     },
     {
       "name": "box",
-      "description": "small box with the top folded",
-      "discovered": true
+      "description": "small box with the top {{state}}",
+      "discovered": true,
+      "isOpen": "false",
+      "state": {
+        "open": "flaps opened",
+        "closed": "folded shut"
+      },
+      "contents": [{
+        "name": "flashlight",
+        "discovered": true,
+        "description" : "small plastic flash light. Meepzorp brand, never runs out of juice. (currently on)."
+      }]
     }
   ],
   "exits": [
@@ -21,7 +31,9 @@
     {
       "name": "up",
       "description": "On the ceiling, one tile is pushed slightly to the side, exposing an opening into the duct work.",
-      "discovered": false
+      "discovered": true
     }
   ]
 }
+
+
